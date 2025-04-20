@@ -1,0 +1,329 @@
+{
+  "users": [
+    {
+      "id": "user1",
+      "email": "john.smith@example.com",
+      "name": "John Smith",
+      "given_name": "John",
+      "family_name": "Smith",
+      "picture": "https://randomuser.me/api/portraits/men/1.jpg",
+      "role": "user",
+      "createdAt": "2024-12-15T10:00:00Z",
+      "profileCompleted": true
+    },
+    {
+      "id": "user2",
+      "email": "sarah.parker@example.com",
+      "name": "Sarah Parker",
+      "given_name": "Sarah",
+      "family_name": "Parker",
+      "picture": "https://randomuser.me/api/portraits/women/2.jpg",
+      "role": "user",
+      "createdAt": "2024-12-20T14:30:00Z",
+      "profileCompleted": true
+    }
+  ],
+  "talents": [
+    {
+      "id": "talent1",
+      "email": "alex.johnson@example.com",
+      "password": "$2a$10$abcdefghijklmnopqrstuvwxyz123456789",
+      "name": "Alex Johnson",
+      "given_name": "Alex",
+      "family_name": "Johnson",
+      "picture": "https://randomuser.me/api/portraits/men/3.jpg",
+      "role": "talent",
+      "createdAt": "2024-12-10T09:15:00Z",
+      "profileCompleted": true,
+      "phone": "+1 555-123-4567",
+      "address": "123 Main St",
+      "city": "New York",
+      "country": "USA",
+      "bio": "Experienced handyman with over 5 years of experience in residential repairs and maintenance.",
+      "skills": ["Plumbing", "Electrical", "Home Repair"],
+      "education": "Bachelor's Degree",
+      "experience": "5+ years in residential repairs",
+      "hourlyRate": 25,
+      "idVerified": true
+    },
+    {
+      "id": "talent2",
+      "email": "emily.white@example.com",
+      "password": "$2a$10$abcdefghijklmnopqrstuvwxyz123456789",
+      "name": "Emily White",
+      "given_name": "Emily",
+      "family_name": "White",
+      "picture": "https://randomuser.me/api/portraits/women/4.jpg",
+      "role": "talent",
+      "createdAt": "2024-12-18T11:45:00Z",
+      "profileCompleted": true,
+      "phone": "+1 555-987-6543",
+      "address": "456 Park Ave",
+      "city": "Chicago",
+      "country": "USA",
+      "bio": "Professional cleaner with attention to detail and eco-friendly cleaning practices.",
+      "skills": ["Cleaning", "Organizing", "Pet Care"],
+      "education": "Associate Degree",
+      "experience": "3 years in professional cleaning services",
+      "hourlyRate": 22,
+      "idVerified": true
+    },
+    {
+      "id": "talent3",
+      "email": "michael.brown@example.com",
+      "password": "$2a$10$abcdefghijklmnopqrstuvwxyz123456789",
+      "name": "Michael Brown",
+      "given_name": "Michael",
+      "family_name": "Brown",
+      "picture": "https://randomuser.me/api/portraits/men/5.jpg",
+      "role": "talent",
+      "createdAt": "2025-01-05T13:20:00Z",
+      "profileCompleted": false,
+      "phone": "",
+      "address": "",
+      "city": "",
+      "country": "",
+      "bio": "",
+      "skills": [],
+      "education": "",
+      "experience": "",
+      "hourlyRate": 0,
+      "idVerified": false
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task1",
+      "title": "Fix Leaking Kitchen Sink",
+      "description": "I have a leaking kitchen sink that needs to be fixed. The leak is coming from the pipe underneath the sink. Need someone with plumbing experience to fix it as soon as possible.",
+      "price": 75,
+      "category": "Plumbing",
+      "location": "New York, NY",
+      "postedBy": "user1",
+      "status": "Open",
+      "createdAt": "2025-03-28T09:00:00Z",
+      "dueDate": "2025-04-30T17:00:00Z",
+      "coordinates": {
+        "lat": 40.7128,
+        "lng": -74.0060
+      },
+      "images": [
+        "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+        "https://images.unsplash.com/photo-1568234928966-359c35dd8313?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+      ],
+      "applications": [
+        {
+          "id": "app1",
+          "talentId": "talent1",
+          "proposal": "I'm a professional plumber with over 5 years of experience fixing leaky sinks. I can identify and fix the issue quickly and guarantee my work.",
+          "price": 70,
+          "status": "pending",
+          "createdAt": "2025-03-29T14:30:00Z"
+        }
+      ]
+    },
+    {
+      "id": "task2",
+      "title": "Deep Clean 2-Bedroom Apartment",
+      "description": "Looking for someone to deep clean my 2-bedroom apartment. This includes cleaning the kitchen, bathroom, living room, and bedrooms. Please bring your own cleaning supplies. The apartment is approximately 900 sq ft.",
+      "price": 120,
+      "category": "Cleaning",
+      "location": "Chicago, IL",
+      "postedBy": "user2",
+      "status": "Open",
+      "createdAt": "2025-03-30T10:15:00Z",
+      "dueDate": "2025-04-20T16:00:00Z",
+      "coordinates": {
+        "lat": 41.8781,
+        "lng": -87.6298
+      },
+      "images": [
+        "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+      ],
+      "applications": [
+        {
+          "id": "app2",
+          "talentId": "talent2",
+          "proposal": "I specialize in deep cleaning apartments and have my own eco-friendly cleaning supplies. I pay special attention to detail and will make sure your apartment is spotless.",
+          "price": 115,
+          "status": "accepted",
+          "createdAt": "2025-03-31T09:45:00Z",
+          "updatedAt": "2025-04-01T11:30:00Z"
+        }
+      ]
+    },
+    {
+      "id": "task3",
+      "title": "Install New Light Fixtures",
+      "description": "Need an electrician to install 3 new light fixtures in my home. One in the dining room (chandelier), one in the hallway, and one in the master bedroom. I have already purchased the fixtures.",
+      "price": 150,
+      "category": "Electrical",
+      "location": "Los Angeles, CA",
+      "postedBy": "user1",
+      "status": "Open",
+      "createdAt": "2025-04-01T08:30:00Z",
+      "dueDate": "2025-04-25T15:00:00Z",
+      "coordinates": {
+        "lat": 34.0522,
+        "lng": -118.2437
+      },
+      "images": [
+        "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+        "https://images.unsplash.com/photo-1540932239986-30128078f3c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+      ],
+      "applications": []
+    },
+    {
+      "id": "task4",
+      "title": "Help Moving Furniture",
+      "description": "I need help moving some furniture from my current apartment to my new one. This includes a sofa, bed, dresser, dining table, and a few boxes. Both locations are within the same neighborhood, about 2 miles apart.",
+      "price": 100,
+      "category": "Moving",
+      "location": "Houston, TX",
+      "postedBy": "user2",
+      "status": "Open",
+      "createdAt": "2025-04-02T11:45:00Z",
+      "dueDate": "2025-04-15T10:00:00Z",
+      "coordinates": {
+        "lat": 29.7604,
+        "lng": -95.3698
+      },
+      "images": [
+        "https://images.unsplash.com/photo-1600585152220-90363fe7e115?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+      ],
+      "applications": [
+        {
+          "id": "app3",
+          "talentId": "talent1",
+          "proposal": "I have experience with moving furniture and have my own truck. I can help you move everything safely and efficiently.",
+          "price": 95,
+          "status": "pending",
+          "createdAt": "2025-04-03T13:20:00Z"
+        }
+      ]
+    },
+    {
+      "id": "task5",
+      "title": "Website Redesign for Small Business",
+      "description": "I need someone to redesign my small business website. It currently has 5 pages (Home, About, Services, Portfolio, Contact). Looking for a modern design that's mobile-friendly and optimized for speed.",
+      "price": 500,
+      "category": "Web Design",
+      "location": "Remote",
+      "postedBy": "user1",
+      "status": "Open",
+      "createdAt": "2025-04-05T14:00:00Z",
+      "dueDate": "2025-05-05T23:59:59Z",
+      "images": [
+        "https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+      ],
+      "applications": []
+    },
+    {
+      "id": "task6",
+      "title": "Weekly House Cleaning",
+      "description": "Looking for someone to clean my 3-bedroom house on a weekly basis. Tasks include vacuuming, mopping, dusting, cleaning bathrooms, and kitchen. Approximately 3-4 hours of work each week.",
+      "price": 80,
+      "category": "Cleaning",
+      "location": "Phoenix, AZ",
+      "postedBy": "user2",
+      "status": "Completed",
+      "createdAt": "2025-02-10T09:30:00Z",
+      "completedDate": "2025-03-20T15:00:00Z",
+      "coordinates": {
+        "lat": 33.4484,
+        "lng": -112.0740
+      },
+      "images": [
+        "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+      ],
+      "applications": [
+        {
+          "id": "app4",
+          "talentId": "talent2",
+          "proposal": "I have extensive experience with regular house cleaning and can maintain your home to a high standard of cleanliness. I use eco-friendly products and am very reliable.",
+          "price": 75,
+          "status": "completed",
+          "createdAt": "2025-02-11T10:15:00Z",
+          "updatedAt": "2025-02-12T11:00:00Z"
+        }
+      ]
+    }
+  ],
+  "markers": [
+    {
+      "id": "marker1",
+      "taskId": "task1",
+      "longitude": -74.0060,
+      "latitude": 40.7128,
+      "title": "Fix Leaking Kitchen Sink"
+    },
+    {
+      "id": "marker2",
+      "taskId": "task2",
+      "longitude": -87.6298,
+      "latitude": 41.8781,
+      "title": "Deep Clean 2-Bedroom Apartment"
+    },
+    {
+      "id": "marker3",
+      "taskId": "task3",
+      "longitude": -118.2437,
+      "latitude": 34.0522,
+      "title": "Install New Light Fixtures"
+    },
+    {
+      "id": "marker4",
+      "taskId": "task4",
+      "longitude": -95.3698,
+      "latitude": 29.7604,
+      "title": "Help Moving Furniture"
+    },
+    {
+      "id": "marker6",
+      "taskId": "task6",
+      "longitude": -112.0740,
+      "latitude": 33.4484,
+      "title": "Weekly House Cleaning"
+    }
+  ],
+  "applications": [
+    {
+      "id": "app1",
+      "taskId": "task1",
+      "talentId": "talent1",
+      "proposal": "I'm a professional plumber with over 5 years of experience fixing leaky sinks. I can identify and fix the issue quickly and guarantee my work.",
+      "price": 70,
+      "status": "pending",
+      "createdAt": "2025-03-29T14:30:00Z"
+    },
+    {
+      "id": "app2",
+      "taskId": "task2",
+      "talentId": "talent2",
+      "proposal": "I specialize in deep cleaning apartments and have my own eco-friendly cleaning supplies. I pay special attention to detail and will make sure your apartment is spotless.",
+      "price": 115,
+      "status": "accepted",
+      "createdAt": "2025-03-31T09:45:00Z",
+      "updatedAt": "2025-04-01T11:30:00Z"
+    },
+    {
+      "id": "app3",
+      "taskId": "task4",
+      "talentId": "talent1",
+      "proposal": "I have experience with moving furniture and have my own truck. I can help you move everything safely and efficiently.",
+      "price": 95,
+      "status": "pending",
+      "createdAt": "2025-04-03T13:20:00Z"
+    },
+    {
+      "id": "app4",
+      "taskId": "task6",
+      "talentId": "talent2",
+      "proposal": "I have extensive experience with regular house cleaning and can maintain your home to a high standard of cleanliness. I use eco-friendly products and am very reliable.",
+      "price": 75,
+      "status": "completed",
+      "createdAt": "2025-02-11T10:15:00Z",
+      "updatedAt": "2025-02-12T11:00:00Z"
+    }
+  ]
+}
