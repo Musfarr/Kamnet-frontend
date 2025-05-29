@@ -101,15 +101,8 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
       setLoading(true);
       dispatch(authStart());
       
-      // Check if talent already exists
-      const existingCheck = await userApi.checkUserExists(formData.email, 'talent');
-      
-      if (existingCheck.exists) {
-        setError('A user with this email already exists');
-        dispatch(authFail('A user with this email already exists'));
-        setLoading(false);
-        return;
-      }
+      // Simplified check for existing user for static frontend
+      // Skip this check in the static version and assume new user
       
       // Prepare talent data
       const talentData = {
@@ -118,16 +111,28 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
         name: formData.name,
         given_name: formData.given_name || formData.name.split(' ')[0],
         family_name: formData.family_name || (formData.name.split(' ').length > 1 ? formData.name.split(' ').slice(1).join(' ') : ''),
-        picture: '',
+        picture: 'https://randomuser.me/api/portraits/men/15.jpg', // Add a default picture
         role: 'talent',
         profileCompleted: false // Talents need to complete their profile
       };
       
-      // Register the talent
+      console.log('Registering talent with data:', talentData);
+      
+      // Register the talent - using our mock API implementation
       const newTalent = await userApi.registerUser(talentData, 'talent');
+      
+      if (!newTalent || !newTalent.success) {
+        throw new Error('Registration failed');
+      }
+      
+      console.log('Registration successful:', newTalent);
       
       // Dispatch to Redux
       dispatch(addUser(newTalent));
+      
+      // Set cookies or localStorage for persistence
+      localStorage.setItem('token', newTalent.token);
+      localStorage.setItem('user', JSON.stringify(newTalent));
       
       // Reset form & close modal
       setFormData({
@@ -144,7 +149,7 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
       navigate('/complete-profile');
     } catch (err) {
       console.error('Signup error:', err);
-      const errorMessage = err.response?.data?.message || 'Failed to create account. Please try again.';
+      const errorMessage = err.message || 'Failed to create account. Please try again.';
       setError(errorMessage);
       dispatch(authFail(errorMessage));
     } finally {
@@ -158,12 +163,24 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
       setLoading(true);
       dispatch(authStart());
       
+      console.log('Google signup with credentials:', credentialResponse);
+      
       // Use the Google credential to authenticate with our backend
       const role = userLoginDialog ? 'user' : 'talent';
       const userData = await googleAuth(credentialResponse, role);
       
+      if (!userData || !userData.success) {
+        throw new Error('Google authentication failed');
+      }
+      
+      console.log('Google signup successful:', userData);
+      
       // Dispatch to Redux
       dispatch(addUser(userData));
+      
+      // Set localStorage items for persistence
+      localStorage.setItem('token', userData.token);
+      localStorage.setItem('user', JSON.stringify(userData));
       
       // Close modal
       handleClose();
@@ -176,7 +193,7 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
       }
     } catch (err) {
       console.error('Google signup error:', err);
-      const errorMessage = 'Failed to sign up with Google. Please try again.';
+      const errorMessage = err.message || 'Failed to sign up with Google. Please try again.';
       setError(errorMessage);
       dispatch(authFail(errorMessage));
     } finally {

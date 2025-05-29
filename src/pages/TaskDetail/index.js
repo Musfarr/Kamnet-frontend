@@ -81,9 +81,10 @@ const TaskDetail = () => {
     if (!isAuthenticated) {
       // Trigger login modal from Header component
       const event = new CustomEvent('open-login-modal', { 
-        detail: { redirectTo: location.pathname } 
+        detail: { isUser: false, redirectTo: location.pathname } 
       });
       window.dispatchEvent(event);
+      console.log('Triggered login modal for non-authenticated user');
       return;
     }
 
@@ -292,7 +293,7 @@ const TaskDetail = () => {
                   <AttachMoney color="primary" />
                   <Typography variant="subtitle1" fontWeight="bold">Price</Typography>
                 </Box>
-                <Typography variant="body1">${task.price}</Typography>
+                <Typography variant="body1">Rs. {task.price}</Typography>
               </Grid>
               
               <Grid item xs={6} sm={3}>
@@ -490,14 +491,14 @@ const TaskDetail = () => {
 
               <TextField
                 name="price"
-                label="Your Price ($)"
+                label="Your Price (Rs.)"
                 type="number"
                 fullWidth
                 value={applicationData.price}
                 onChange={handleApplicationChange}
                 disabled={submitting}
                 sx={{ mb: 3 }}
-                helperText={`Task budget: $${task.price}`}
+                helperText={`Task budget: Rs. ${task.price}`}
               />
             </>
           )}

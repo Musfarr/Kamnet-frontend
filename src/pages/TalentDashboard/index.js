@@ -136,7 +136,9 @@ const TalentDashboard = () => {
   };
   
   // Skills to display (from user profile)
-  const userSkills = user?.skills || [];
+  // Make sure skills is always an array even if it's undefined or not an array
+  const userSkills = Array.isArray(user?.skills) ? user.skills : [];
+  console.log('User skills:', userSkills);
   
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
@@ -295,7 +297,7 @@ const TalentDashboard = () => {
                   <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                     <CircularProgress />
                   </Box>
-                ) : applications.length === 0 ? (
+                ) : !applications || applications.length === 0 ? (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant="body1" color="text.secondary" gutterBottom>
                       You haven't applied to any tasks yet
@@ -348,7 +350,7 @@ const TalentDashboard = () => {
                             
                             <Typography variant="body2" sx={{ mt: 1 }}>
                               {application.proposal?.substring(0, 120)}
-                              {application.proposal?.length > 120 ? '...' : ''}
+                              {application.proposal && application.proposal.length > 120 ? '...' : ''}
                             </Typography>
                           </CardContent>
                           <CardActions>
@@ -376,7 +378,7 @@ const TalentDashboard = () => {
             {/* Accepted Applications Tab */}
             <TabPanel value={tabValue} index={1}>
               <Box sx={{ px: 3, pb: 3 }}>
-                {applications.filter(app => app.status === 'accepted').length === 0 ? (
+                {!applications || applications.filter(app => app.status === 'accepted').length === 0 ? (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
                       You don't have any accepted applications yet
@@ -422,7 +424,7 @@ const TalentDashboard = () => {
                               
                               <Typography variant="body2" sx={{ mt: 1 }}>
                                 {application.proposal?.substring(0, 120)}
-                                {application.proposal?.length > 120 ? '...' : ''}
+                                {application.proposal && application.proposal.length > 120 ? '...' : ''}
                               </Typography>
                             </CardContent>
                             <CardActions>
@@ -450,7 +452,7 @@ const TalentDashboard = () => {
             {/* Pending Applications Tab */}
             <TabPanel value={tabValue} index={2}>
               <Box sx={{ px: 3, pb: 3 }}>
-                {applications.filter(app => app.status === 'pending').length === 0 ? (
+                {!applications || applications.filter(app => app.status === 'pending').length === 0 ? (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
                       You don't have any pending applications
@@ -496,7 +498,7 @@ const TalentDashboard = () => {
                               
                               <Typography variant="body2" sx={{ mt: 1 }}>
                                 {application.proposal?.substring(0, 120)}
-                                {application.proposal?.length > 120 ? '...' : ''}
+                                {application.proposal && application.proposal.length > 120 ? '...' : ''}
                               </Typography>
                             </CardContent>
                             <CardActions>

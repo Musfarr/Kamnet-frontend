@@ -133,7 +133,7 @@ const Home = () => {
                         color="primary"
                         sx={{ fontWeight: 'bold' }}
                       >
-                        ${task.price}
+                        Rs. {task.price}
                       </Typography>
                     </Box>
                     <Typography gutterBottom variant="h6" component="h3">

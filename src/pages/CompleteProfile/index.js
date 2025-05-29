@@ -230,6 +230,9 @@ const CompleteProfile = () => {
     
     try {
       setLoading(true);
+      setError('');
+      
+      console.log('Submitting profile data:', profileData);
       
       // Create form data for file upload
       const formData = new FormData();
@@ -248,8 +251,19 @@ const CompleteProfile = () => {
       // Mark profile as completed
       formData.append('profileCompleted', true);
       
+      // Ensure we have a user ID
+      const userId = user?.id || 'talent1';
+      
+      console.log('Using user ID for profile completion:', userId);
+      
       // Save profile data
-      const updatedUser = await userApi.completeProfile(user.id, formData);
+      const updatedUser = await userApi.completeProfile(userId, formData);
+      
+      if (!updatedUser || !updatedUser.success) {
+        throw new Error('Failed to update profile. Please try again.');
+      }
+      
+      console.log('Profile updated successfully:', updatedUser);
       
       // Update user in Redux store
       dispatch(updateProfileStatus(true));
@@ -258,7 +272,7 @@ const CompleteProfile = () => {
       navigate(redirectTo);
     } catch (err) {
       console.error('Error completing profile:', err);
-      setError(err.response?.data?.message || 'Failed to complete profile. Please try again.');
+      setError(err.message || 'Failed to complete profile. Please try again.');
     } finally {
       setLoading(false);
     }

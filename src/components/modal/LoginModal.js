@@ -72,6 +72,8 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
         return;
       }
 
+      console.log('Attempting login with:', formData.email);
+
       // For talent role (task doer), validate credentials
       const roleType = 'talent';
       const loginData = await userApi.loginUser(formData, roleType);
@@ -83,10 +85,16 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
         return;
       }
 
+      console.log('Login successful:', loginData);
+
       // Login successful
       dispatch(addUser(loginData));
       
-      // Set cookies
+      // Set localStorage items for persistence
+      localStorage.setItem('token', loginData.token);
+      localStorage.setItem('user', JSON.stringify(loginData));
+      
+      // Also set cookies for compatibility
       Cookies.set('user', JSON.stringify(loginData));
       Cookies.set('isLoggedIn', 'true');
 
@@ -102,7 +110,7 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
       handleClose();
     } catch (err) {
       console.error('Login error:', err);
-      const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
+      const errorMessage = err.message || 'Login failed. Please try again.';
       setError(errorMessage);
       dispatch(authFail(errorMessage));
     } finally {
@@ -116,6 +124,8 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
       setLoading(true);
       dispatch(authStart());
 
+      console.log('Google login with credentials:', credentialResponse);
+
       // Use the Google credential to authenticate with our backend
       const role = userLoginDialog ? 'user' : 'talent';
       const userData = await googleAuth(credentialResponse, role);
@@ -127,10 +137,16 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
         return;
       }
 
+      console.log('Google login successful:', userData);
+
       // Dispatch to Redux
       dispatch(addUser(userData));
       
-      // Set cookies
+      // Set localStorage items for persistence
+      localStorage.setItem('token', userData.token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Also set cookies for compatibility
       Cookies.set('user', JSON.stringify(userData));
       Cookies.set('isLoggedIn', 'true');
 
@@ -145,7 +161,7 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
       handleClose();
     } catch (err) {
       console.error('Google login error:', err);
-      const errorMessage = 'Failed to sign in with Google. Please try again.';
+      const errorMessage = err.message || 'Failed to sign in with Google. Please try again.';
       setError(errorMessage);
       dispatch(authFail(errorMessage));
     } finally {

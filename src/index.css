@@ -14,6 +14,7 @@ body {
 .main-content {
   flex: 1;
   padding-top: 64px; /* Account for fixed header */
+  min-height: calc(100vh - 64px);
 }
 
 .container {

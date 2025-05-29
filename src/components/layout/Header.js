@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   AppBar, 
   Box, 
@@ -31,6 +31,8 @@ import { removeUser } from '../../redux/features/userSlice';
 import { userApi } from '../../api/apiClient';
 import LoginModal from '../modal/LoginModal';
 import SignupModal from '../modal/SignupModal';
+
+
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -83,6 +85,27 @@ function Header() {
     handleClose();
     navigate('/');
   };
+
+  // Add event listeners for signup/login modals triggered from elsewhere
+  useEffect(() => {
+    const handleOpenSignupModal = (event) => {
+      const isUser = event.detail?.isUser || false;
+      handleSignupOpen(isUser);
+    };
+
+    const handleOpenLoginModal = (event) => {
+      const isUser = event.detail?.isUser || false;
+      handleLoginOpen(isUser);
+    };
+
+    window.addEventListener('open-signup-modal', handleOpenSignupModal);
+    window.addEventListener('open-login-modal', handleOpenLoginModal);
+
+    return () => {
+      window.removeEventListener('open-signup-modal', handleOpenSignupModal);
+      window.removeEventListener('open-login-modal', handleOpenLoginModal);
+    };
+  }, []);
 
   // Mobile drawer content
   const drawer = (

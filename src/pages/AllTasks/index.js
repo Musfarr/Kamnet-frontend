@@ -44,16 +44,21 @@ const categories = [
 
 const locations = [
   'All Locations',
-  'New York, NY',
-  'Los Angeles, CA',
-  'Chicago, IL',
-  'Houston, TX',
-  'Phoenix, AZ',
-  'Philadelphia, PA',
-  'San Antonio, TX',
-  'San Diego, CA',
-  'Dallas, TX',
-  'San Jose, CA'
+  'Lahore',
+  'Karachi',
+  'Islamabad',
+  'Rawalpindi',
+  'Faisalabad',
+  'Multan',
+  'Peshawar',
+  'Quetta',
+  'Sialkot',
+  'Gujranwala',
+  'Hyderabad',
+  'Bahria Town',
+  'DHA Lahore',
+  'Gulberg',
+  'Model Town'
 ];
 
 const AllTasks = () => {
@@ -311,7 +316,7 @@ const AllTasks = () => {
                       color="primary"
                       sx={{ fontWeight: 'bold' }}
                     >
-                      ${task.price}
+                      Rs. {task.price}
                     </Typography>
                   </Box>
                   <Typography gutterBottom variant="h6" component="h2">

@@ -170,47 +170,92 @@ export const taskApi = {
 
 // User related API calls
 export const userApi = {
-  // Check if user exists by email
+  // Check if user exists by email - Mocked for static frontend
   async checkUserExists(email, role) {
     if (!email) throw new Error('Email is required');
     
     try {
-      const response = await api.get(`/${role}s/check-email/${email}`);
-      return response.data;
+      // For static frontend, we'll mock the response
+      console.log(`Checking if ${email} exists as ${role}`);
+      
+      // Mock response - always return not exists for now
+      return {
+        exists: false,
+        message: 'User does not exist'
+      };
     } catch (error) {
       console.error('Error checking user existence:', error);
       throw error;
     }
   },
   
-  // Register new user
+  // Register new user - Mocked for static frontend
   async registerUser(userData, role) {
     try {
-      const response = await api.post(`/auth/register/${role}`, userData);
+      // For static frontend, simulate API response with local data
+      console.log('Registering new', role, 'with data:', userData);
+      
+      // Generate a mock token
+      const mockToken = 'mock-jwt-token-' + Math.random().toString(36).substring(2);
+      
+      // Create a user ID
+      const userId = role + '-' + Math.random().toString(36).substring(2);
+      
+      // Return mock user data with token
+      const registeredUser = {
+        ...userData,
+        id: userId,
+        token: mockToken,
+        success: true
+      };
       
       // Save token to localStorage
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-      }
+      localStorage.setItem('token', mockToken);
       
-      return response.data;
+      return registeredUser;
     } catch (error) {
       console.error('Error registering user:', error);
       throw error;
     }
   },
   
-  // Login user
+  // Login user - Mocked for static frontend
   async loginUser(credentials, role) {
     try {
-      const response = await api.post(`/auth/login/${role}`, credentials);
+      // For static frontend, simulate API response with local data
+      console.log('Login attempt for', credentials.email, 'as', role);
       
-      // Save token to localStorage
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
+      // Generate a mock token
+      const mockToken = 'mock-jwt-token-' + Math.random().toString(36).substring(2);
+      
+      // Mock user data based on role
+      let userData;
+      
+      if (role === 'talent' && credentials.email === 'ali.hassan@example.com') {
+        userData = {
+          id: 'talent1',
+          email: 'ali.hassan@example.com',
+          name: 'Ali Hassan',
+          given_name: 'Ali',
+          family_name: 'Hassan',
+          picture: 'https://randomuser.me/api/portraits/men/5.jpg',
+          role: 'talent',
+          token: mockToken,
+          profileCompleted: true,
+          success: true
+        };
+      } else {
+        // Return error for unknown users
+        return {
+          success: false,
+          message: 'Invalid email or password'
+        };
       }
       
-      return response.data;
+      // Save token to localStorage
+      localStorage.setItem('token', mockToken);
+      
+      return userData;
     } catch (error) {
       console.error('Error logging in:', error);
       throw error;
@@ -244,17 +289,122 @@ export const userApi = {
     }
   },
   
-  // Complete talent profile
+  // Complete talent profile - Mocked for static frontend
   async completeProfile(userId, profileData) {
     try {
-      const response = await api.put(`/talents/${userId}/complete-profile`, profileData);
+      console.log('Completing profile for user:', userId);
+      console.log('Profile data:', profileData);
+      
+      // For static frontend, we'll mock the response
+      // Create a mock updated user with completed profile
+      const mockToken = 'mock-jwt-token-' + Math.random().toString(36).substring(2);
+      
+      // Get existing user from localStorage if available
+      let existingUser = {};
+      try {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          existingUser = JSON.parse(storedUser);
+        }
+      } catch (e) {
+        console.error('Error parsing stored user:', e);
+      }
+      
+      // Create updated user object
+      const updatedUser = {
+        ...existingUser,
+        id: userId,
+        profileCompleted: true,
+        bio: profileData.get('bio') || 'Professional with experience in various tasks',
+        skills: profileData.get('skills') ? JSON.parse(profileData.get('skills')) : ['Plumbing', 'Home Repair'],
+        hourlyRate: profileData.get('hourlyRate') || 2500,
+        education: profileData.get('education') || 'Bachelor\'s Degree',
+        location: profileData.get('location') || 'Lahore, Pakistan',
+        token: mockToken,
+        success: true
+      };
+      
+      // Update localStorage with the updated user data
+      localStorage.setItem('token', mockToken);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
       
       // Clear user cache to reflect updated profile
       cache.data.delete('current-user');
       
-      return response.data;
+      console.log('Profile completed successfully:', updatedUser);
+      
+      return updatedUser;
     } catch (error) {
       console.error('Error completing profile:', error);
+      throw error;
+    }
+  },
+  
+  // Get talent's applications - Mocked for static frontend
+  async getTalentApplications(talentId) {
+    try {
+      console.log('Fetching applications for talent:', talentId);
+      
+      // For static frontend, return mock applications data
+      const mockApplications = [
+        {
+          id: 'app1',
+          taskId: 'task1',
+          talentId: talentId,
+          status: 'pending',
+          coverLetter: 'I am interested in this task and have relevant experience.',
+          proposedRate: 2500,
+          createdAt: '2025-05-28T10:30:00Z',
+          task: {
+            id: 'task1',
+            title: 'Plumbing Repair in Lahore',
+            description: 'Need help fixing a leaky faucet and installing a new sink.',
+            budget: 5000,
+            location: 'Lahore, Pakistan',
+            dueDate: '2025-06-15',
+            category: 'Plumbing',
+            status: 'open',
+            postedBy: {
+              id: 'user1',
+              name: 'Ahmed Khan',
+              picture: 'https://randomuser.me/api/portraits/men/1.jpg'
+            }
+          }
+        },
+        {
+          id: 'app2',
+          taskId: 'task2',
+          talentId: talentId,
+          status: 'accepted',
+          coverLetter: 'I have done similar work before and can complete this quickly.',
+          proposedRate: 3000,
+          createdAt: '2025-05-25T14:20:00Z',
+          task: {
+            id: 'task2',
+            title: 'Home Cleaning in Karachi',
+            description: 'Need thorough cleaning of a 3-bedroom apartment.',
+            budget: 4000,
+            location: 'Karachi, Pakistan',
+            dueDate: '2025-06-05',
+            category: 'Cleaning',
+            status: 'assigned',
+            postedBy: {
+              id: 'user2',
+              name: 'Fatima Ali',
+              picture: 'https://randomuser.me/api/portraits/women/2.jpg'
+            }
+          }
+        }
+      ];
+      
+      console.log('Returning mock applications:', mockApplications);
+      
+      return {
+        success: true,
+        data: mockApplications
+      };
+    } catch (error) {
+      console.error('Error fetching talent applications:', error);
       throw error;
     }
   },
@@ -281,24 +431,13 @@ export const userApi = {
     }
   },
   
-  // Get talent's applications
-  async getTalentApplications(talentId, page = 1, limit = 10) {
+  // Get applications for a task
+  async getTaskApplications(taskId) {
     try {
-      const cacheKey = `talent-applications-${talentId}-${page}-${limit}`;
-      const cachedData = cache.get(cacheKey);
-      
-      if (cachedData) {
-        return cachedData;
-      }
-      
-      const response = await api.get(`/talents/${talentId}/applications?page=${page}&limit=${limit}`);
-      
-      // Cache the results
-      cache.set(cacheKey, response.data);
-      
+      const response = await api.get(`/tasks/${taskId}/applications`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching talent applications:', error);
+      console.error('Error fetching task applications:', error);
       throw error;
     }
   }
@@ -332,20 +471,50 @@ export const mapApi = {
   }
 };
 
-// Google authentication
+// Google authentication - Mocked for static frontend
 export const googleAuth = async (tokenResponse, role) => {
   try {
-    const response = await api.post('/auth/google', {
-      ...tokenResponse,
-      role
-    });
+    // For static frontend, simulate API response with local data
+    // This would normally communicate with a backend server
+    console.log('Google Auth with token', tokenResponse, 'for role', role);
     
-    // Save token to localStorage
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+    // Generate a mock token
+    const mockToken = 'mock-jwt-token-' + Math.random().toString(36).substring(2);
+    
+    // Create mock user data based on role
+    let userData;
+    if (role === 'user') {
+      userData = {
+        id: 'user1',
+        email: 'ahmad.khan@example.com',
+        name: 'Ahmad Khan',
+        given_name: 'Ahmad',
+        family_name: 'Khan',
+        picture: 'https://randomuser.me/api/portraits/men/1.jpg',
+        role: 'user',
+        token: mockToken,
+        profileCompleted: true,
+        success: true
+      };
+    } else {
+      userData = {
+        id: 'talent1',
+        email: 'ali.hassan@example.com',
+        name: 'Ali Hassan',
+        given_name: 'Ali',
+        family_name: 'Hassan',
+        picture: 'https://randomuser.me/api/portraits/men/5.jpg',
+        role: 'talent',
+        token: mockToken,
+        profileCompleted: true,
+        success: true
+      };
     }
     
-    return response.data;
+    // Save token to localStorage
+    localStorage.setItem('token', mockToken);
+    
+    return userData;
   } catch (error) {
     console.error('Error authenticating with Google:', error);
     throw error;

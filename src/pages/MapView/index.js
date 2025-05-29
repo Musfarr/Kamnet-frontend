@@ -73,7 +73,6 @@ const MapView = () => {
         
         // Build query params
         const params = {
-          hasCoordinates: true,
           limit: 100
         };
         
@@ -86,13 +85,19 @@ const MapView = () => {
         }
         
         const response = await taskApi.getTasks(params);
-        setMapTasks(response.data);
+        
+        // Filter out tasks without coordinates
+        const tasksWithCoordinates = response.data.filter(task => 
+          task.coordinates && task.coordinates.lat && task.coordinates.lng
+        );
+        
+        setMapTasks(tasksWithCoordinates);
         
         // Transform tasks to markers format
-        const markers = response.data.map(task => ({
+        const markers = tasksWithCoordinates.map(task => ({
           id: task.id,
-          longitude: task.coordinates?.lng || 0,
-          latitude: task.coordinates?.lat || 0,
+          longitude: task.coordinates.lng,
+          latitude: task.coordinates.lat,
           title: task.title,
           category: task.category,
           price: task.price,
@@ -139,15 +144,17 @@ const MapView = () => {
   const handleTaskClick = (task) => {
     setSelectedTask(task);
     
-    // Center map on task (handled by parent component)
-    const event = new CustomEvent('center-map', { 
-      detail: { 
-        lng: task.coordinates?.lng, 
-        lat: task.coordinates?.lat,
-        zoom: 14 
-      }
-    });
-    window.dispatchEvent(event);
+    // Center map on task using a custom event
+    if (task.coordinates?.lat && task.coordinates?.lng) {
+      const event = new CustomEvent('center-map', { 
+        detail: { 
+          lng: task.coordinates.lng, 
+          lat: task.coordinates.lat,
+          zoom: 14 
+        }
+      });
+      window.dispatchEvent(event);
+    }
   };
   
   // Handle view task details
@@ -161,7 +168,7 @@ const MapView = () => {
   };
 
   return (
-    <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', mt: '64px' }}>
       {/* Header with search and filters */}
       <Box sx={{ 
         bgcolor: 'background.paper', 

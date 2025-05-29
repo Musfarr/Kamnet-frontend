@@ -1,0 +1,110 @@
+{
+  "users": [
+    {
+      "id": "user1",
+      "email": "ahmad.khan@example.com",
+      "name": "Ahmad Khan",
+      "given_name": "Ahmad",
+      "family_name": "Khan",
+      "picture": "https://randomuser.me/api/portraits/men/1.jpg",
+      "role": "user",
+      "createdAt": "2024-12-15T10:00:00Z",
+      "profileCompleted": true
+    }
+  ],
+  "talents": [
+    {
+      "id": "talent1",
+      "email": "ali.hassan@example.com",
+      "password": "$2a$10$abcdefghijklmnopqrstuvwxyz123456789",
+      "name": "Ali Hassan",
+      "given_name": "Ali",
+      "family_name": "Hassan",
+      "picture": "https://randomuser.me/api/portraits/men/5.jpg",
+      "role": "talent",
+      "skills": ["Plumbing", "Home Repair"],
+      "bio": "Professional plumber with 5 years of experience. I specialize in residential plumbing repairs and installations.",
+      "hourlyRate": 2500,
+      "location": "Gulberg, Lahore",
+      "createdAt": "2024-12-10T09:15:00Z",
+      "profileCompleted": true
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task1",
+      "title": "Fix Leaking Kitchen Sink",
+      "description": "I have a leaking kitchen sink that needs to be fixed. The leak is coming from the pipe underneath the sink. Need someone with plumbing experience to fix it as soon as possible.",
+      "category": "Plumbing",
+      "price": 5000,
+      "location": "DHA Phase 5, Lahore",
+      "userId": "user1",
+      "status": "open",
+      "createdAt": "2024-12-23T14:30:00Z",
+      "dueDate": "2024-12-30T00:00:00Z",
+      "coordinates": {
+        "lat": 31.4697,
+        "lng": 74.4184
+      }
+    },
+    {
+      "id": "task2",
+      "title": "Web Development for Online Store",
+      "description": "Looking for someone to build a simple e-commerce website for my handmade clothing business. Need product catalog, shopping cart, and payment integration with local payment gateways.",
+      "category": "Web Design",
+      "price": 30000,
+      "location": "Bahria Town, Islamabad",
+      "userId": "user1",
+      "status": "open",
+      "createdAt": "2024-12-22T10:15:00Z",
+      "dueDate": "2025-01-15T00:00:00Z",
+      "coordinates": {
+        "lat": 33.5651,
+        "lng": 73.0169
+      }
+    },
+    {
+      "id": "task3",
+      "title": "English Tutor for Beginner",
+      "description": "I'm looking for an English tutor to help improve my conversation skills. I'm at a beginner level and would like to have 1-hour sessions twice a week.",
+      "category": "Language Instruction",
+      "price": 3000,
+      "location": "Clifton, Karachi",
+      "userId": "user1",
+      "status": "open",
+      "createdAt": "2024-12-20T08:45:00Z",
+      "dueDate": "2025-01-10T00:00:00Z",
+      "coordinates": {
+        "lat": 24.8269,
+        "lng": 67.0297
+      }
+    },
+    {
+      "id": "task4",
+      "title": "Home Deep Cleaning Service",
+      "description": "Need thorough cleaning of a 3-bedroom apartment including kitchen, bathrooms, and living areas. Bring your own cleaning supplies.",
+      "category": "Cleaning",
+      "price": 7000,
+      "location": "Gulshan-e-Iqbal, Karachi",
+      "userId": "user1",
+      "status": "open",
+      "createdAt": "2024-12-19T12:30:00Z",
+      "dueDate": "2024-12-28T00:00:00Z",
+      "coordinates": {
+        "lat": 24.9200,
+        "lng": 67.0700
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "app1",
+      "taskId": "task1",
+      "talentId": "talent1",
+      "proposal": "I'm a professional plumber with over 5 years of experience fixing leaky sinks. I can identify and fix the issue quickly and guarantee my work.",
+      "price": 4500,
+      "status": "pending",
+      "createdAt": "2025-03-29T14:30:00Z"
+    }
+  ]
+}
