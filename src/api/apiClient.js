@@ -38,7 +38,7 @@ const cache = {
   }
 };
 
-// Add token to requests if available
+// Add token to requests if available and handle token refresh
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -48,6 +48,58 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+// Handle 401 responses (token expired) by attempting to refresh token
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // If error is 401 and we haven't tried refresh yet
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        // Try to refresh the token
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+          // No refresh token available, user needs to log in again
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          // Redirect to login or dispatch logout action
+          window.dispatchEvent(new Event('auth:logout'));
+          return Promise.reject(error);
+        }
+        
+        // Call refresh token endpoint
+        const response = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, {
+          refreshToken
+        });
+        
+        if (response.data.success) {
+          // Store the new token
+          localStorage.setItem('token', response.data.token);
+          
+          // Update the original request authorization header
+          api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+          originalRequest.headers.Authorization = `Bearer ${response.data.token}`;
+          
+          // Retry the original request
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error('Error refreshing token:', refreshError);
+        // Clear all auth tokens
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        // Notify app about auth expiry
+        window.dispatchEvent(new Event('auth:logout'));
+      }
+    }
+    
+    return Promise.reject(error);
+  }
 );
 
 // Task related API calls
@@ -225,8 +277,9 @@ export const userApi = {
       // For static frontend, simulate API response with local data
       console.log('Login attempt for', credentials.email, 'as', role);
       
-      // Generate a mock token
+      // Generate mock tokens
       const mockToken = 'mock-jwt-token-' + Math.random().toString(36).substring(2);
+      const mockRefreshToken = 'mock-refresh-token-' + Math.random().toString(36).substring(2);
       
       // Mock user data based on role
       let userData;
@@ -241,6 +294,9 @@ export const userApi = {
           picture: 'https://randomuser.me/api/portraits/men/5.jpg',
           role: 'talent',
           token: mockToken,
+          refreshToken: mockRefreshToken,
+          accessTokenExpires: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes
+          refreshTokenExpires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
           profileCompleted: true,
           success: true
         };
@@ -252,8 +308,9 @@ export const userApi = {
         };
       }
       
-      // Save token to localStorage
+      // Save tokens to localStorage
       localStorage.setItem('token', mockToken);
+      localStorage.setItem('refreshToken', mockRefreshToken);
       
       return userData;
     } catch (error) {
@@ -263,8 +320,32 @@ export const userApi = {
   },
   
   // Logout user
-  logout() {
-    localStorage.removeItem('token');
+  async logout() {
+    try {
+      // Call backend logout API if available (non-mocked)
+      if (!process.env.REACT_APP_USE_MOCK_DATA) {
+        // Get the token for authorization header
+        const token = localStorage.getItem('token');
+        if (token) {
+          await api.post('/api/auth/logout');
+        }
+      }
+      
+      // Clear all auth tokens
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      // Clear any user data in localStorage
+      localStorage.removeItem('user');
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Still clear tokens even if API call fails
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      return { success: true };
+    }
   },
   
   // Get current user profile
@@ -526,4 +607,88 @@ export const clearApiCache = () => {
   cache.clear();
 };
 
-export default { taskApi, userApi, mapApi, googleAuth, clearApiCache };
+// Auth related API calls for password reset and token refresh
+export const authApi = {
+  // Request password reset
+  async requestPasswordReset(email) {
+    try {
+      // For static frontend, simulate API response
+      if (process.env.REACT_APP_USE_MOCK_DATA) {
+        console.log('Password reset requested for:', email);
+        return {
+          success: true,
+          message: 'If an account exists, a password reset email will be sent'
+        };
+      }
+      
+      // Real API call
+      const response = await api.post('/api/auth/forgot-password', { email });
+      return response.data;
+    } catch (error) {
+      console.error('Error requesting password reset:', error);
+      throw error;
+    }
+  },
+  
+  // Reset password with token
+  async resetPassword(token, newPassword) {
+    try {
+      // For static frontend, simulate API response
+      if (process.env.REACT_APP_USE_MOCK_DATA) {
+        console.log('Password reset with token:', token);
+        return {
+          success: true,
+          message: 'Password has been reset successfully'
+        };
+      }
+      
+      // Real API call
+      const response = await api.put(`/api/auth/reset-password/${token}`, { password: newPassword });
+      return response.data;
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      throw error;
+    }
+  },
+  
+  // Refresh access token
+  async refreshToken() {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+      
+      // For static frontend, simulate API response
+      if (process.env.REACT_APP_USE_MOCK_DATA) {
+        console.log('Simulating token refresh');
+        const newToken = 'mock-jwt-token-' + Math.random().toString(36).substring(2);
+        localStorage.setItem('token', newToken);
+        return {
+          success: true,
+          token: newToken,
+          expires: new Date(Date.now() + 30 * 60 * 1000).toISOString()
+        };
+      }
+      
+      // Real API call
+      const response = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, { refreshToken });
+      
+      if (response.data.success) {
+        localStorage.setItem('token', response.data.token);
+        return response.data;
+      } else {
+        throw new Error('Failed to refresh token');
+      }
+    } catch (error) {
+      console.error('Error refreshing token:', error);
+      // Clear tokens on refresh failure
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      throw error;
+    }
+  }
+};
+
+export default { taskApi, userApi, mapApi, googleAuth, clearApiCache, authApi };
