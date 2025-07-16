@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { taskApi } from '../../api/apiClient';
+import SEO from '../../components/SEO/SEO';
 
 const Home = () => {
   const [featuredTasks, setFeaturedTasks] = useState([]);
@@ -39,8 +40,49 @@ const Home = () => {
     fetchFeaturedTasks();
   }, []);
 
+  // SEO schema for the homepage (Organization and WebSite)  
+  const homePageSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://kamnet.com/#organization",
+        "name": "Kamnet Marketplace",
+        "url": "https://kamnet.com/",
+        "description": "Pakistan's trusted marketplace connecting task posters with task doers",
+        "areaServed": {
+          "@type": "Country",
+          "name": "Pakistan"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://kamnet.com/#website",
+        "url": "https://kamnet.com/",
+        "name": "Kamnet Marketplace",
+        "publisher": {
+          "@id": "https://kamnet.com/#organization"
+        },
+        "inLanguage": "en-PK",
+        "potentialAction": [
+          {
+            "@type": "SearchAction",
+            "target": "https://kamnet.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
+      <SEO
+        title="Kamnet Marketplace | Find Local Services & Tasks in Pakistan"
+        description="Connect with skilled professionals or earn money completing tasks. Kamnet is Pakistan's trusted marketplace for finding local services and work opportunities."
+        keywords="marketplace, pakistan, services, tasks, gigs, local services, freelance, karachi, lahore, islamabad"
+        schema={homePageSchema}
+      />
       {/* Hero section */}
       <Box
         sx={{

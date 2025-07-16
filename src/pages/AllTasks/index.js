@@ -26,6 +26,7 @@ import { Search as SearchIcon, FilterList as FilterIcon } from '@mui/icons-mater
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { taskApi } from '../../api/apiClient';
+import SEO from '../../components/SEO/SEO';
 
 const categories = [
   'All Categories',
@@ -171,9 +172,53 @@ const AllTasks = () => {
   const toggleFilters = () => {
     setShowFilters(!showFilters);
   };
+  
+  // Generate schema.org structured data for ItemList of tasks
+  const generateTasksListSchema = () => {
+    if (!tasks || tasks.length === 0) return null;
+    
+    // Create list items for each task
+    const itemListElements = tasks.map((task, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Service",
+        "name": task.title,
+        "description": task.description,
+        "offers": {
+          "@type": "Offer",
+          "price": task.budget,
+          "priceCurrency": "PKR"
+        },
+        "serviceLocation": {
+          "@type": "Place",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": task.location
+          }
+        },
+        "url": `${window.location.origin}/tasks/${task.id}`
+      }
+    }));
+    
+    return {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "itemListElement": itemListElements,
+      "numberOfItems": tasks.length,
+      "name": "Available Tasks in Pakistan - Kamnet Marketplace"
+    };
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4, mt: 2 }}>
+      <SEO
+        title="All Tasks | Find Services & Work Opportunities in Pakistan | Kamnet"
+        description="Browse available tasks and services across Pakistan. Find work opportunities or hire skilled professionals for your needs on Kamnet Marketplace."
+        keywords="tasks, services, jobs, freelance, pakistan, karachi, lahore, islamabad, gigs"
+        type="website"
+        schema={generateTasksListSchema()}
+      />
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h4" component="h1" fontWeight="bold">

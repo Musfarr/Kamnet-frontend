@@ -1,0 +1,12 @@
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Disallow private pages
+Disallow: /complete-profile
+Disallow: /user-dashboard
+Disallow: /talent-dashboard
+Disallow: /callback
+
+# Sitemap location
+Sitemap: https://kamnet.com/sitemap.xml

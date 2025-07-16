@@ -37,6 +37,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { taskApi } from '../../api/apiClient';
 import MapComponent from '../../components/Map/MapComponent';
+import SEO from '../../components/SEO/SEO';
 
 const TaskDetail = () => {
   const { id } = useParams();
@@ -75,6 +76,51 @@ const TaskDetail = () => {
 
     fetchTaskDetails();
   }, [id]);
+
+  // Create structured data for the task using schema.org JobPosting
+  const generateTaskSchema = () => {
+    if (!task) return null;
+    
+    // Format the date to ISO 8601
+    const datePosted = new Date(task.createdAt).toISOString();
+    const validThrough = new Date();
+    validThrough.setDate(validThrough.getDate() + 30); // Assuming tasks are valid for 30 days
+    
+    return {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      "title": task.title,
+      "description": task.description,
+      "datePosted": datePosted,
+      "validThrough": validThrough.toISOString(),
+      "employmentType": "CONTRACTOR",
+      "jobLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": task.location,
+          "addressRegion": task.location.split(',')[1]?.trim() || 'Pakistan',
+          "addressCountry": "PK"
+        }
+      },
+      "baseSalary": {
+        "@type": "MonetaryAmount",
+        "currency": "PKR",
+        "value": {
+          "@type": "QuantitativeValue",
+          "value": task.budget,
+          "unitText": "TOTAL"
+        }
+      },
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": task.postedBy?.name || "Kamnet User",
+        "sameAs": "https://kamnet.com"
+      },
+      "industry": task.category,
+      "skills": task.skills?.join(", ") || ""
+    };
+  };
 
   // Handle apply button click
   const handleApplyClick = () => {
@@ -235,6 +281,16 @@ const TaskDetail = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4, mt: 2 }}>
+      {task && (
+        <SEO
+          title={`${task.title} | Kamnet Marketplace`}
+          description={`${task.description?.substring(0, 150)}${task.description?.length > 150 ? '...' : ''} | Budget: PKR ${task.budget} | Location: ${task.location}`}
+          keywords={`${task.category}, ${task.skills?.join(', ')}, ${task.location}, freelance work, task`}
+          image={task.images && task.images.length > 0 ? task.images[0] : ''}
+          type="article"
+          schema={generateTaskSchema()}
+        />
+      )}
       <Button startIcon={<ArrowBack />} onClick={handleGoBack} sx={{ mb: 3 }}>
         Back to Tasks
       </Button>

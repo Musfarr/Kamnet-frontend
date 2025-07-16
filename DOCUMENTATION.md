@@ -98,6 +98,81 @@ Kamnet is a marketplace application optimized for the Pakistani market, connecti
 - **Data Source**: Static data in `db-optimized.json`
 - **Server**: Custom server in `server.js` using json-server
 
+## Search Engine Optimization (SEO)
+
+### Overview
+Kamnet Marketplace implements a comprehensive SEO strategy designed to improve visibility in search engines, particularly for the Pakistani market. The implementation focuses on proper metadata, structured data, and search engine crawlability.
+
+### SEO Architecture
+
+#### Core Components
+- **SEO Component**: Reusable component at `/src/components/SEO/SEO.js` using `react-helmet-async` for managing document head
+- **HelmetProvider**: Integrated at the root in `src/index.js` for React context
+- **Structured Data**: JSON-LD implementation following schema.org standards
+- **Crawler Control**: robots.txt and sitemap.xml in the public directory
+
+#### SEO Component Design
+```jsx
+// Example usage
+<SEO
+  title="Page Title | Kamnet Marketplace"
+  description="Page description for search results"
+  keywords="keyword1, keyword2"
+  image="url-to-image.jpg"
+  url="https://kamnet.com/page"
+  type="website"
+  schema={schemaObject}
+/>
+```
+
+#### Features Implemented
+1. **Meta Tags Management**:
+   - Title, description, keywords
+   - Viewport, language, canonical URL
+   - Open Graph (Facebook/WhatsApp)
+   - Twitter Cards
+
+2. **Structured Data**:
+   - Home Page: Organization and WebSite schemas
+   - Task Detail: JobPosting schema for rich results
+   - All Tasks: ItemList schema for better search listings
+
+3. **Crawlability**:
+   - Static sitemap.xml with key pages
+   - Dynamic sitemap generator script (`scripts/generate-sitemap.js`)
+   - Robots.txt with proper crawler instructions
+   - Build process integration for sitemap generation
+
+### Implementation Status
+
+| Page | Meta Tags | Open Graph | Structured Data | Status |
+|------|-----------|------------|----------------|--------|
+| Home | ✓ | ✓ | Organization, WebSite | Complete |
+| Task Detail | ✓ | ✓ | JobPosting | Complete |
+| All Tasks | ✓ | ✓ | ItemList | Complete |
+| Map View | - | - | - | Pending |
+| Dashboards | - | - | - | Pending |
+| Post Task | - | - | - | Pending |
+
+### Remaining SEO Work
+
+#### Immediate Tasks
+- Implement SEO for Map View, User Dashboard, Talent Dashboard, and Post Task pages
+- Create unique meta descriptions for each major section of the application
+- Add geo-specific meta tags for Pakistani market targeting
+
+#### Production Optimization
+- **Server-Side Rendering**: Consider migrating to Next.js or implement pre-rendering
+- **Performance Optimization**: Image optimization, lazy loading, code splitting
+- **Core Web Vitals**: Address Largest Contentful Paint, First Input Delay, and Cumulative Layout Shift
+- **Local SEO**: Implement local business schema for physical locations if applicable
+
+#### Post-Backend Integration
+- Update dynamic content in meta tags from actual API data
+- Generate dynamic sitemaps based on real tasks in the database
+- Implement canonical URLs for pagination and filtered views
+- Set up monitoring with Google Search Console
+
 ## Remaining Work
 
 ### Backend Integration
