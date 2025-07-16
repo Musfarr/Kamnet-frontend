@@ -13,7 +13,7 @@ const path = require('path');
 const axios = require('axios');
 
 // Configuration
-const baseUrl = 'https://kamnet.com'; // Change to your production URL
+const baseUrl = 'https://kamnetcorp.com'; // Change to your production URL
 const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000'; // API URL to fetch tasks
 const outputPath = path.join(__dirname, '../public/sitemap.xml');
 

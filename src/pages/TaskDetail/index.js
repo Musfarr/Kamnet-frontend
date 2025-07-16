@@ -115,7 +115,7 @@ const TaskDetail = () => {
       "hiringOrganization": {
         "@type": "Organization",
         "name": task.postedBy?.name || "Kamnet User",
-        "sameAs": "https://kamnet.com"
+        "sameAs": "https://kamnetcorp.com"
       },
       "industry": task.category,
       "skills": task.skills?.join(", ") || ""

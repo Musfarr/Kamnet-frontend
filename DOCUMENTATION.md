@@ -119,7 +119,7 @@ Kamnet Marketplace implements a comprehensive SEO strategy designed to improve v
   description="Page description for search results"
   keywords="keyword1, keyword2"
   image="url-to-image.jpg"
-  url="https://kamnet.com/page"
+  url="https://kamnetcorp.com/page"
   type="website"
   schema={schemaObject}
 />

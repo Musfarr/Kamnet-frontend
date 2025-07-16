@@ -26,7 +26,7 @@ const SEO = ({
   const defaultDescription = 'Find local services or earn money by completing tasks. Kamnet is Pakistan\'s trusted marketplace connecting skilled professionals with people who need work done.';
   const defaultKeywords = 'kamnet, marketplace, pakistan, freelance, services, tasks, gigs, remote work';
   const defaultImage = '/images/kamnet-social-preview.jpg'; // Ensure this image exists
-  const defaultUrl = typeof window !== 'undefined' ? window.location.href : 'https://kamnet.com';
+  const defaultUrl = typeof window !== 'undefined' ? window.location.href : 'https://kamnetcorp.com';
   
   // Use provided values or fall back to defaults
   const seoTitle = title || defaultTitle;

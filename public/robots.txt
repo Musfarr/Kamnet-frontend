@@ -9,4 +9,4 @@ Disallow: /talent-dashboard
 Disallow: /callback
 
 # Sitemap location
-Sitemap: https://kamnet.com/sitemap.xml
+Sitemap: https://kamnetcorp.com/sitemap.xml

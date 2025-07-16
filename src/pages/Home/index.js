@@ -46,9 +46,9 @@ const Home = () => {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://kamnet.com/#organization",
+        "@id": "https://kamnetcorp.com/#organization",
         "name": "Kamnet Marketplace",
-        "url": "https://kamnet.com/",
+        "url": "https://kamnetcorp.com/",
         "description": "Pakistan's trusted marketplace connecting task posters with task doers",
         "areaServed": {
           "@type": "Country",
@@ -57,17 +57,17 @@ const Home = () => {
       },
       {
         "@type": "WebSite",
-        "@id": "https://kamnet.com/#website",
-        "url": "https://kamnet.com/",
+        "@id": "https://kamnetcorp.com/#website",
+        "url": "https://kamnetcorp.com/",
         "name": "Kamnet Marketplace",
         "publisher": {
-          "@id": "https://kamnet.com/#organization"
+          "@id": "https://kamnetcorp.com/#organization"
         },
         "inLanguage": "en-PK",
         "potentialAction": [
           {
             "@type": "SearchAction",
-            "target": "https://kamnet.com/search?q={search_term_string}",
+            "target": "https://kamnetcorp.com/search?q={search_term_string}",
             "query-input": "required name=search_term_string"
           }
         ]
