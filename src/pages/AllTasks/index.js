@@ -25,7 +25,7 @@ import {
 import { Search as SearchIcon, FilterList as FilterIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { taskApi } from '../../api/apiClient';
+import { useTasks } from '../../api/hooks/useTasks';
 import SEO from '../../components/SEO/SEO';
 
 const categories = [
@@ -63,11 +63,7 @@ const locations = [
 ];
 
 const AllTasks = () => {
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({
     search: '',
     category: 'All Categories',
@@ -77,43 +73,32 @@ const AllTasks = () => {
   const { isAuthenticated, user } = useSelector(state => state.user);
   const navigate = useNavigate();
 
-  // Fetch tasks when page or filters change
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        setLoading(true);
-        setError('');
+  // Build query params for React Query
+  const queryParams = {
+    page,
+    limit: 9
+  };
 
-        // Build query params
-        const params = {
-          page,
-          limit: 9
-        };
+  // Add filters if selected
+  if (filters.search) {
+    queryParams.search = filters.search;
+  }
+  if (filters.category && filters.category !== 'All Categories') {
+    queryParams.category = filters.category;
+  }
+  if (filters.location && filters.location !== 'All Locations') {
+    queryParams.location = filters.location;
+  }
 
-        // Add filters if selected
-        if (filters.search) {
-          params.search = filters.search;
-        }
-        if (filters.category && filters.category !== 'All Categories') {
-          params.category = filters.category;
-        }
-        if (filters.location && filters.location !== 'All Locations') {
-          params.location = filters.location;
-        }
+  // Use React Query hook for tasks
+  const { 
+    data: tasksResponse, 
+    isLoading: loading, 
+    error 
+  } = useTasks(queryParams);
 
-        const response = await taskApi.getTasks(params);
-        setTasks(response.data);
-        setTotalPages(response.totalPages);
-      } catch (err) {
-        console.error('Error fetching tasks:', err);
-        setError('Failed to load tasks. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTasks();
-  }, [page, filters]);
+  const tasks = tasksResponse?.data || [];
+  const totalPages = tasksResponse?.totalPages || 1;
 
   // Handle page change
   const handlePageChange = (event, value) => {

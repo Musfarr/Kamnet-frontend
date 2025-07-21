@@ -16,19 +16,21 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { GoogleLogin } from '@react-oauth/google';
-import { userApi, googleAuth } from '../../api/apiClient';
+import { useLoginUser, useGoogleAuth } from '../../api/hooks/useUsers';
 import { addUser, authFail, authStart, clearError } from '../../redux/features/userSlice';
 import Cookies from 'js-cookie';
 
 const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
+    password: ''
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [error, setError] = useState('');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const loginMutation = useLoginUser();
+  const googleAuthMutation = useGoogleAuth();
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -76,7 +78,15 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
 
       // For talent role (task doer), validate credentials
       const roleType = 'talent';
-      const loginData = await userApi.loginUser(formData, roleType);
+      const loginData = await new Promise((resolve, reject) => {
+        loginMutation.mutate(
+          { credentials: formData, role: roleType },
+          {
+            onSuccess: resolve,
+            onError: reject
+          }
+        );
+      });
 
       if (!loginData.success) {
         setError(loginData.message || 'Login failed');
@@ -128,7 +138,15 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
 
       // Use the Google credential to authenticate with our backend
       const role = userLoginDialog ? 'user' : 'talent';
-      const userData = await googleAuth(credentialResponse, role);
+      const userData = await new Promise((resolve, reject) => {
+        googleAuthMutation.mutate(
+          { tokenResponse: credentialResponse, role },
+          {
+            onSuccess: resolve,
+            onError: reject
+          }
+        );
+      });
 
       if (!userData.success) {
         setError(userData.message || 'Google authentication failed');

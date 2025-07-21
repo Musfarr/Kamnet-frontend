@@ -38,7 +38,7 @@ import {
   Close as CloseIcon,
   Assignment as AssignmentIcon,
 } from '@mui/icons-material';
-import { userApi, taskApi } from '../../api/apiClient';
+import { useTalentApplications } from '../../api/hooks/useUsers';
 
 // Tab panel component
 function TabPanel({ children, value, index, ...other }) {
@@ -60,12 +60,18 @@ const TalentDashboard = () => {
   const navigate = useNavigate();
   
   const [tabValue, setTabValue] = useState(0);
-  const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [refresh, setRefresh] = useState(false);
   const [applicationDetail, setApplicationDetail] = useState(null);
   const [detailDialog, setDetailDialog] = useState(false);
+  
+  // Use React Query hook for applications
+  const { 
+    data: applicationsResponse, 
+    isLoading: loading, 
+    error,
+    refetch: refreshApplications
+  } = useTalentApplications(user?.id);
+  
+  const applications = applicationsResponse?.data || [];
   
   // Check if user is authenticated and has completed profile
   useEffect(() => {
@@ -84,25 +90,10 @@ const TalentDashboard = () => {
     }
   }, [isAuthenticated, user, navigate]);
   
-  // Load talent's applications
-  useEffect(() => {
-    const fetchApplications = async () => {
-      if (!user) return;
-      
-      try {
-        setLoading(true);
-        const response = await userApi.getTalentApplications(user.id);
-        setApplications(response.data);
-      } catch (err) {
-        console.error('Error fetching applications:', err);
-        setError('Failed to load your applications. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchApplications();
-  }, [user, refresh]);
+  // Refresh applications when needed
+  const handleRefresh = () => {
+    refreshApplications();
+  };
   
   // Handle tab change
   const handleTabChange = (event, newValue) => {
@@ -283,15 +274,7 @@ const TalentDashboard = () => {
                   </Alert>
                 )}
                 
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                  <Button
-                    startIcon={<RefreshIcon />}
-                    onClick={() => setRefresh(!refresh)}
-                    size="small"
-                  >
-                    Refresh
-                  </Button>
-                </Box>
+                {/* React Query handles automatic refreshing */}
                 
                 {loading ? (
                   <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>

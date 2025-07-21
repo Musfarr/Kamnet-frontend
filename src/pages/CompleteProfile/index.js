@@ -24,7 +24,7 @@ import {
 } from '@mui/material';
 import { CloudUpload as UploadIcon, LocationOn } from '@mui/icons-material';
 import { updateProfileStatus } from '../../redux/features/userSlice';
-import { userApi } from '../../api/apiClient';
+import { useCompleteProfile } from '../../api/hooks/useUsers';
 
 // Available skills for talents to select
 const availableSkills = [
@@ -47,6 +47,7 @@ const CompleteProfile = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const redirectTo = location.state?.redirectTo || '/talent/dashboard';
+  const completeProfileMutation = useCompleteProfile();
   
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -257,7 +258,15 @@ const CompleteProfile = () => {
       console.log('Using user ID for profile completion:', userId);
       
       // Save profile data
-      const updatedUser = await userApi.completeProfile(userId, formData);
+      const updatedUser = await new Promise((resolve, reject) => {
+        completeProfileMutation.mutate(
+          { userId, profileData },
+          {
+            onSuccess: resolve,
+            onError: reject
+          }
+        );
+      });
       
       if (!updatedUser || !updatedUser.success) {
         throw new Error('Failed to update profile. Please try again.');

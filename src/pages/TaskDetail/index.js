@@ -35,7 +35,7 @@ import {
 } from '@mui/icons-material';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { taskApi } from '../../api/apiClient';
+import { useTask, useApplyForTask } from '../../api/hooks/useTasks';
 import MapComponent from '../../components/Map/MapComponent';
 import SEO from '../../components/SEO/SEO';
 
@@ -45,37 +45,24 @@ const TaskDetail = () => {
   const location = useLocation();
   const { isAuthenticated, user } = useSelector(state => state.user);
   
-  const [task, setTask] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [applyDialog, setApplyDialog] = useState(false);
   const [applicationData, setApplicationData] = useState({
     proposal: '',
     price: '',
     applicationStatus: 'pending'
   });
-  const [submitting, setSubmitting] = useState(false);
   const [applicationError, setApplicationError] = useState('');
   const [applicationSuccess, setApplicationSuccess] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // Fetch task details
-  useEffect(() => {
-    const fetchTaskDetails = async () => {
-      try {
-        setLoading(true);
-        const taskData = await taskApi.getTaskById(id);
-        setTask(taskData);
-      } catch (err) {
-        console.error('Error fetching task details:', err);
-        setError('Failed to load task details. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTaskDetails();
-  }, [id]);
+  // Use React Query hooks
+  const { 
+    data: task, 
+    isLoading: loading, 
+    error 
+  } = useTask(id);
+  
+  const applyForTaskMutation = useApplyForTask();
 
   // Create structured data for the task using schema.org JobPosting
   const generateTaskSchema = () => {
@@ -189,43 +176,39 @@ const TaskDetail = () => {
   const handleSubmitApplication = async () => {
     if (!validateApplicationForm()) return;
     
-    try {
-      setSubmitting(true);
-      
-      const applicationPayload = {
-        taskId: id,
-        talentId: user.id,
-        proposal: applicationData.proposal,
-        price: parseFloat(applicationData.price),
-        status: 'pending'
-      };
-      
-      const response = await taskApi.applyForTask(applicationPayload);
-      
-      if (response.success) {
-        setApplicationSuccess(true);
-        
-        // Reset form
-        setApplicationData({
-          proposal: '',
-          price: '',
-          applicationStatus: 'pending'
-        });
-        
-        // Close dialog after success message
-        setTimeout(() => {
-          setApplyDialog(false);
-          setApplicationSuccess(false);
-        }, 2000);
-      } else {
-        setApplicationError(response.message || 'Application failed. Please try again.');
+    const applicationPayload = {
+      taskId: id,
+      talentId: user.id,
+      proposal: applicationData.proposal,
+      price: parseFloat(applicationData.price),
+      status: 'pending'
+    };
+    
+    applyForTaskMutation.mutate(
+      { taskId: id, applicationData: applicationPayload },
+      {
+        onSuccess: (response) => {
+          setApplicationSuccess(true);
+          
+          // Reset form
+          setApplicationData({
+            proposal: '',
+            price: '',
+            applicationStatus: 'pending'
+          });
+          
+          // Close dialog after success message
+          setTimeout(() => {
+            setApplyDialog(false);
+            setApplicationSuccess(false);
+          }, 2000);
+        },
+        onError: (error) => {
+          console.error('Error applying for task:', error);
+          setApplicationError(error.response?.data?.message || 'Failed to apply for task. Please try again.');
+        }
       }
-    } catch (err) {
-      console.error('Error applying for task:', err);
-      setApplicationError(err.response?.data?.message || 'Failed to apply for task. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
+    );
   };
 
   // Handle image click for enlargement
@@ -481,7 +464,7 @@ const TaskDetail = () => {
       <Dialog
         open={applyDialog}
         onClose={() => {
-          if (!submitting) {
+          if (!applyMutation.isPending) {
             setApplyDialog(false);
             setApplicationError('');
           }
@@ -508,7 +491,7 @@ const TaskDetail = () => {
                 }
               }}
               size="small"
-              disabled={submitting}
+              disabled={applyMutation.isPending}
             >
               <CloseIcon />
             </IconButton>
@@ -541,7 +524,7 @@ const TaskDetail = () => {
                 fullWidth
                 value={applicationData.proposal}
                 onChange={handleApplicationChange}
-                disabled={submitting}
+                disabled={applyMutation.isPending}
                 sx={{ mb: 3 }}
               />
 
@@ -552,7 +535,7 @@ const TaskDetail = () => {
                 fullWidth
                 value={applicationData.price}
                 onChange={handleApplicationChange}
-                disabled={submitting}
+                disabled={applyMutation.isPending}
                 sx={{ mb: 3 }}
                 helperText={`Task budget: Rs. ${task.price}`}
               />
@@ -569,7 +552,7 @@ const TaskDetail = () => {
                   setApplicationError('');
                 }
               }}
-              disabled={submitting}
+              disabled={applyMutation.isPending}
             >
               Cancel
             </Button>
@@ -577,9 +560,9 @@ const TaskDetail = () => {
               variant="contained"
               color="primary"
               onClick={handleSubmitApplication}
-              disabled={submitting}
+              disabled={applyMutation.isPending}
             >
-              {submitting ? <CircularProgress size={24} color="inherit" /> : 'Submit Application'}
+              {applyMutation.isPending ? 'Submitting...' : 'Submit Application'}
             </Button>
           </DialogActions>
         )}

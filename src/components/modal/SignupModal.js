@@ -16,7 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { GoogleLogin } from '@react-oauth/google';
-import { userApi, googleAuth } from '../../api/apiClient';
+import { useRegisterUser, useGoogleAuth } from '../../api/hooks/useUsers';
 import { addUser, authFail, authStart, clearError } from '../../redux/features/userSlice';
 
 function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
@@ -32,7 +32,9 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+  const registerMutation = useRegisterUser();
+  const googleAuthMutation = useGoogleAuth();
+
   // Helper to handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -119,7 +121,15 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
       console.log('Registering talent with data:', talentData);
       
       // Register the talent - using our mock API implementation
-      const newTalent = await userApi.registerUser(talentData, 'talent');
+      const newTalent = await new Promise((resolve, reject) => {
+        registerMutation.mutate(
+          { userData: talentData, role: 'talent' },
+          {
+            onSuccess: resolve,
+            onError: reject
+          }
+        );
+      });
       
       if (!newTalent || !newTalent.success) {
         throw new Error('Registration failed');
@@ -167,7 +177,15 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
       
       // Use the Google credential to authenticate with our backend
       const role = userLoginDialog ? 'user' : 'talent';
-      const userData = await googleAuth(credentialResponse, role);
+      const userData = await new Promise((resolve, reject) => {
+        googleAuthMutation.mutate(
+          { tokenResponse: credentialResponse, role },
+          {
+            onSuccess: resolve,
+            onError: reject
+          }
+        );
+      });
       
       if (!userData || !userData.success) {
         throw new Error('Google authentication failed');

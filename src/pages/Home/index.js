@@ -13,32 +13,18 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { taskApi } from '../../api/apiClient';
+import { useFeaturedTasks } from '../../api/hooks/useTasks';
 import SEO from '../../components/SEO/SEO';
 
 const Home = () => {
-  const [featuredTasks, setFeaturedTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
-
-  // Fetch featured tasks on component mount
-  useEffect(() => {
-    const fetchFeaturedTasks = async () => {
-      try {
-        setLoading(true);
-        const data = await taskApi.getFeaturedTasks();
-        setFeaturedTasks(data);
-      } catch (err) {
-        console.error('Error fetching featured tasks:', err);
-        setError('Failed to load featured tasks');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFeaturedTasks();
-  }, []);
+  
+  // Use React Query hook for featured tasks
+  const { 
+    data: featuredTasks = [], 
+    isLoading: loading, 
+    error 
+  } = useFeaturedTasks();
 
   // SEO schema for the homepage (Organization and WebSite)  
   const homePageSchema = {

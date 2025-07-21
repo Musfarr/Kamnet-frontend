@@ -28,7 +28,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeUser } from '../../redux/features/userSlice';
-import { userApi } from '../../api/apiClient';
+import { useLogout } from '../../api/hooks/useUsers';
 import LoginModal from '../modal/LoginModal';
 import SignupModal from '../modal/SignupModal';
 
@@ -43,6 +43,7 @@ function Header() {
   const { user, isAuthenticated } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const logoutMutation = useLogout();
 
   // Handle drawer toggle
   const handleDrawerToggle = () => {
@@ -80,10 +81,13 @@ function Header() {
 
   // Handle logout
   const handleLogout = () => {
-    userApi.logout();
-    dispatch(removeUser());
-    handleClose();
-    navigate('/');
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        dispatch(removeUser());
+        handleClose();
+        navigate('/');
+      }
+    });
   };
 
   // Add event listeners for signup/login modals triggered from elsewhere

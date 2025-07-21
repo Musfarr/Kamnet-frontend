@@ -30,7 +30,8 @@ import {
   Close as CloseIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { taskApi } from '../../api/apiClient';
+import { useTasks } from '../../api/hooks/useTasks';
+import { useMapMarkers } from '../../api/hooks/useMap';
 import MapComponent from '../../components/Map/MapComponent';
 
 const categories = [
@@ -49,8 +50,6 @@ const categories = [
 ];
 
 const MapView = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [mapTasks, setMapTasks] = useState([]);
   const [mapMarkers, setMapMarkers] = useState([]);
   const [filters, setFilters] = useState({
@@ -65,55 +64,34 @@ const MapView = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
 
-  // Fetch tasks with map coordinates
+  // Use React Query to load tasks for map
+  const { data: tasks = [], isLoading, error: tasksError } = useTasks({
+    limit: 100,
+    search: filters.search,
+    category: filters.category !== 'All Categories' ? filters.category : undefined
+  });
+
+  // Process tasks for map display
   useEffect(() => {
-    const fetchMapTasks = async () => {
-      try {
-        setLoading(true);
-        
-        // Build query params
-        const params = {
-          limit: 100
-        };
-        
-        // Add filters if selected
-        if (filters.search) {
-          params.search = filters.search;
-        }
-        if (filters.category && filters.category !== 'All Categories') {
-          params.category = filters.category;
-        }
-        
-        const response = await taskApi.getTasks(params);
-        
-        // Filter out tasks without coordinates
-        const tasksWithCoordinates = response.data.filter(task => 
-          task.coordinates && task.coordinates.lat && task.coordinates.lng
-        );
-        
-        setMapTasks(tasksWithCoordinates);
-        
-        // Transform tasks to markers format
-        const markers = tasksWithCoordinates.map(task => ({
-          id: task.id,
-          longitude: task.coordinates.lng,
-          latitude: task.coordinates.lat,
-          title: task.title,
-          category: task.category,
-          price: task.price,
-        }));
-        
-        setMapMarkers(markers);
-      } catch (err) {
-        console.error('Error fetching map tasks:', err);
-        setError('Failed to load tasks. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Filter out tasks without coordinates
+    const tasksWithCoordinates = tasks.filter(task => 
+      task.coordinates && task.coordinates.lat && task.coordinates.lng
+    );
     
-    fetchMapTasks();
-  }, [filters]);
+    setMapTasks(tasksWithCoordinates);
+    
+    // Transform tasks to markers format
+    const markers = tasksWithCoordinates.map(task => ({
+      id: task.id,
+      longitude: task.coordinates.lng,
+      latitude: task.coordinates.lat,
+      title: task.title,
+      category: task.category,
+      price: task.price,
+    }));
+    
+    setMapMarkers(markers);
+  }, [tasks]);
 
   // Handle filter changes
   const handleFilterChange = (event) => {
@@ -260,13 +238,13 @@ const MapView = () => {
                 {mapTasks.length} Tasks Found
               </Typography>
               
-              {loading ? (
+              {isLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                   <CircularProgress />
                 </Box>
-              ) : error ? (
+              ) : tasksError ? (
                 <Alert severity="error" sx={{ my: 2 }}>
-                  {error}
+                  {tasksError.message || 'Failed to load tasks'}
                 </Alert>
               ) : mapTasks.length === 0 ? (
                 <Typography color="text.secondary" sx={{ py: 2 }}>
@@ -336,7 +314,7 @@ const MapView = () => {
         
         {/* Map container */}
         <Box sx={{ flexGrow: 1, position: 'relative' }}>
-          {loading && !mapMarkers.length ? (
+          {isLoading && !mapMarkers.length ? (
             <Box sx={{ 
               position: 'absolute', 
               top: '50%', 
