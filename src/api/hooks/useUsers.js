@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient, mockUtils } from '../apiClient';
+import { normalizeTasks } from '../utils/normalize';
 
 // Query keys for users
 export const USER_KEYS = {
@@ -46,7 +47,9 @@ export const useUserTasks = (userId, page = 1, limit = 10) => {
     queryKey: USER_KEYS.tasks(userId),
     queryFn: async () => {
       if (!userId) throw new Error('User ID is required');
-      return await apiClient.get(`/users/${userId}/tasks`, { page, limit });
+      const res = await apiClient.get(`/frontend/user/tasks`, { page, limit });
+      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      return normalizeTasks(list);
     },
     enabled: !!userId,
   });
@@ -154,7 +157,7 @@ export const useLogout = () => {
       if (!process.env.REACT_APP_USE_MOCK_DATA) {
         const token = localStorage.getItem('token');
         if (token) {
-          await apiClient.post('/api/auth/logout');
+          await apiClient.post('/auth/logout');
         }
       }
       

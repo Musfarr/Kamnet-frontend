@@ -211,7 +211,7 @@ const TalentDashboard = () => {
                 <Typography variant="subtitle2">Hourly Rate</Typography>
               </Box>
               <Typography variant="body2" sx={{ ml: 3 }}>
-                ${user?.hourlyRate || 'Not specified'}
+                Rs. {user?.hourlyRate || 'Not specified'}
               </Typography>
             </Box>
             
@@ -318,7 +318,7 @@ const TalentDashboard = () => {
                                     />
                                   )}
                                   <Chip 
-                                    label={`$${application.price || application.task?.price}`} 
+                                    label={`Rs. ${application.price || application.task?.price}`} 
                                     variant="outlined" 
                                     size="small"
                                   />
@@ -392,7 +392,7 @@ const TalentDashboard = () => {
                                       />
                                     )}
                                     <Chip 
-                                      label={`$${application.price || application.task?.price}`} 
+                                      label={`Rs. ${application.price || application.task?.price}`} 
                                       variant="outlined" 
                                       size="small"
                                     />
@@ -466,7 +466,7 @@ const TalentDashboard = () => {
                                       />
                                     )}
                                     <Chip 
-                                      label={`$${application.price || application.task?.price}`} 
+                                      label={`Rs. ${application.price || application.task?.price}`} 
                                       variant="outlined" 
                                       size="small"
                                     />
@@ -576,7 +576,7 @@ const TalentDashboard = () => {
                     </ListItemIcon>
                     <ListItemText 
                       primary="Your Price" 
-                      secondary={`$${applicationDetail.price}`} 
+                      secondary={`Rs. ${applicationDetail.price}`} 
                     />
                   </ListItem>
                   <ListItem>
@@ -584,8 +584,8 @@ const TalentDashboard = () => {
                       <AssignmentIcon />
                     </ListItemIcon>
                     <ListItemText 
-                      primary="Task Budget" 
-                      secondary={`$${applicationDetail.task?.price}`} 
+                      primary="Task Price" 
+                      secondary={`Rs. ${applicationDetail.task?.price}`} 
                     />
                   </ListItem>
                   <ListItem>

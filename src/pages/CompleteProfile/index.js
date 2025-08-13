@@ -451,7 +451,7 @@ const CompleteProfile = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label="Hourly Rate ($)"
+                  label="Hourly Rate (Rs.)"
                   name="hourlyRate"
                   type="number"
                   value={profileData.hourlyRate}
@@ -460,7 +460,7 @@ const CompleteProfile = () => {
                   margin="normal"
                   required
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                    startAdornment: <InputAdornment position="start">Rs.</InputAdornment>,
                   }}
                 />
               </Grid>

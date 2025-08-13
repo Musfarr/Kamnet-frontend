@@ -95,7 +95,7 @@ const TaskDetail = () => {
         "currency": "PKR",
         "value": {
           "@type": "QuantitativeValue",
-          "value": task.budget,
+          "value": task.price,
           "unitText": "TOTAL"
         }
       },
@@ -267,7 +267,7 @@ const TaskDetail = () => {
       {task && (
         <SEO
           title={`${task.title} | Kamnet Marketplace`}
-          description={`${task.description?.substring(0, 150)}${task.description?.length > 150 ? '...' : ''} | Budget: PKR ${task.budget} | Location: ${task.location}`}
+          description={`${task.description?.substring(0, 150)}${task.description?.length > 150 ? '...' : ''} | Price: PKR ${task.price} | Location: ${task.location}`}
           keywords={`${task.category}, ${task.skills?.join(', ')}, ${task.location}, freelance work, task`}
           image={task.images && task.images.length > 0 ? task.images[0] : ''}
           type="article"
@@ -537,7 +537,7 @@ const TaskDetail = () => {
                 onChange={handleApplicationChange}
                 disabled={applyMutation.isPending}
                 sx={{ mb: 3 }}
-                helperText={`Task budget: Rs. ${task.price}`}
+                helperText={`Task price: Rs. ${task.price}`}
               />
             </>
           )}

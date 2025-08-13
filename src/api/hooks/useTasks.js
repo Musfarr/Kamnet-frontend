@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient, mockUtils } from '../apiClient';
+import { apiClient, apiClientMeta, mockUtils } from '../apiClient';
+import { normalizeTasks, normalizeTask, mapCreateTaskPayload, mapApplyPayload } from '../utils/normalize';
 
 // Query keys for tasks
 export const TASK_KEYS = {
@@ -27,15 +28,19 @@ export const useTasks = (params = {}) => {
       if (params.location) queryParams.location = params.location;
       if (params.search) queryParams.q = params.search;
       
-      const response = await apiClient.get('/tasks', queryParams);
+      const { data, headers } = await apiClientMeta.getWithMeta('/tasks', queryParams);
+      // Unwrap possible { success, data }
+      const list = Array.isArray(data) ? data : (data?.data ?? []);
+      const normalized = normalizeTasks(list);
       
-      // For mock data, simulate pagination response
-      const totalCount = response.length || 0;
+      // Read total count from header if available
+      const totalCountHeader = headers?.['x-total-count'] || headers?.['X-Total-Count'];
+      const totalCount = totalCountHeader ? parseInt(totalCountHeader, 10) : normalized.length;
       const currentPage = params.page || 1;
       const limit = params.limit || 10;
       
       return {
-        data: response,
+        data: normalized,
         totalCount,
         currentPage,
         totalPages: Math.ceil(totalCount / limit),
@@ -50,7 +55,9 @@ export const useFeaturedTasks = () => {
   return useQuery({
     queryKey: TASK_KEYS.featured(),
     queryFn: async () => {
-      return await apiClient.get('/tasks', { _limit: 3 });
+      const res = await apiClient.get('/tasks/featured');
+      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      return normalizeTasks(list);
     },
   });
 };
@@ -61,7 +68,9 @@ export const useTask = (id) => {
     queryKey: TASK_KEYS.detail(id),
     queryFn: async () => {
       if (!id) throw new Error('Task ID is required');
-      return await apiClient.get(`/tasks/${id}`);
+      const res = await apiClient.get(`/tasks/${id}`);
+      const raw = (res && typeof res === 'object' && !Array.isArray(res) && 'data' in res) ? res.data : res;
+      return normalizeTask(raw);
     },
     enabled: !!id,
   });
@@ -73,7 +82,8 @@ export const useCreateTask = () => {
   
   return useMutation({
     mutationFn: async (taskData) => {
-      return await apiClient.post('/tasks', taskData);
+      const payload = mapCreateTaskPayload(taskData);
+      return await apiClient.post('/tasks', payload);
     },
     onSuccess: () => {
       // Invalidate and refetch tasks list
@@ -89,7 +99,8 @@ export const useApplyForTask = () => {
   
   return useMutation({
     mutationFn: async ({ taskId, applicationData }) => {
-      return await apiClient.post(`/tasks/${taskId}/apply`, applicationData);
+      const payload = mapApplyPayload(applicationData);
+      return await apiClient.post(`/frontend/tasks/${taskId}/apply`, payload);
     },
     onSuccess: (data, variables) => {
       // Invalidate task details to reflect new application

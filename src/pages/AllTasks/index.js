@@ -172,7 +172,7 @@ const AllTasks = () => {
         "description": task.description,
         "offers": {
           "@type": "Offer",
-          "price": task.budget,
+          "price": task.price,
           "priceCurrency": "PKR"
         },
         "serviceLocation": {

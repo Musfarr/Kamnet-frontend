@@ -11,10 +11,13 @@
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const dotenv = require('dotenv');
+dotenv.config();
 
 // Configuration
 const baseUrl = 'https://kamnetcorp.com'; // Change to your production URL
-const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000'; // API URL to fetch tasks
+// Prefer REACT_APP_API_URL (frontend) or API_URL (server-side) and ensure it includes '/api'
+const apiBase = (process.env.REACT_APP_API_URL || process.env.API_URL || 'http://localhost:8000/api').replace(/\/$/, '');
 const outputPath = path.join(__dirname, '../public/sitemap.xml');
 
 // Static pages that should always be in the sitemap
@@ -52,7 +55,7 @@ async function generateSitemap() {
     
     // Fetch tasks from API for dynamic pages
     try {
-      const response = await axios.get(`${apiUrl}/api/tasks`);
+      const response = await axios.get(`${apiBase}/tasks`);
       const tasks = response.data;
       
       // Add task detail pages

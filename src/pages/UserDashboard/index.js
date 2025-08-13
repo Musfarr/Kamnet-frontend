@@ -330,7 +330,7 @@ const UserDashboard = () => {
                                         size="small"
                                       />
                                       <Chip 
-                                        label={`$${task.price}`} 
+                                        label={`Rs. ${task.price}`} 
                                         variant="outlined" 
                                         size="small"
                                       />
@@ -414,7 +414,7 @@ const UserDashboard = () => {
                                       size="small"
                                     />
                                     <Chip 
-                                      label={`$${task.price}`} 
+                                      label={`Rs. ${task.price}`} 
                                       variant="outlined" 
                                       size="small"
                                     />
@@ -520,7 +520,7 @@ const UserDashboard = () => {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Budget ($)"
+                label="Price (Rs.)"
                 name="price"
                 type="number"
                 value={taskData.price}

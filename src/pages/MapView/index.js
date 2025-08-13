@@ -274,7 +274,7 @@ const MapView = () => {
                             sx={{ borderRadius: 1 }}
                           />
                           <Typography color="primary" fontWeight="bold">
-                            ${task.price}
+                            Rs. ${task.price}
                           </Typography>
                         </Box>
                         
@@ -375,7 +375,7 @@ const MapView = () => {
                     variant="outlined"
                   />
                   <Chip
-                    label={`$${selectedTask.price}`}
+                    label={`Rs. ${selectedTask.price}`}
                     size="small"
                     color="secondary"
                     variant="outlined"
@@ -388,8 +388,8 @@ const MapView = () => {
                 </Typography>
                 
                 {selectedTask.location && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
-                    <LocationOn color="action" fontSize="small" />
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, mb: 1 }}>
+                    <LocationOn color="action" fontSize="small" sx={{ mt: 0.3 }} />
                     <Typography variant="body2" color="text.secondary">
                       {selectedTask.location}
                     </Typography>
@@ -451,7 +451,7 @@ const MapView = () => {
                 variant="outlined"
               />
               <Chip
-                label={`$${selectedTask.price}`}
+                label={`Rs. ${selectedTask.price}`}
                 size="small"
                 color="secondary"
                 variant="outlined"

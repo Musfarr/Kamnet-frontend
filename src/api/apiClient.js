@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 // Create an axios instance with default configurations
 const api = axios.create({
@@ -46,7 +46,7 @@ api.interceptors.response.use(
         }
         
         // Call refresh token endpoint
-        const response = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, {
+        const response = await api.post(`/auth/refresh-token`, {
           refreshToken
         });
         
@@ -130,6 +130,22 @@ export const apiClient = {
       return response.data;
     } catch (error) {
       console.error(`PATCH ${endpoint} failed:`, error);
+      throw error;
+    }
+  }
+};
+
+// Extended methods where headers/status are needed
+export const apiClientMeta = {
+  // GET request returning data and headers
+  async getWithMeta(endpoint, params = {}) {
+    try {
+      const queryParams = new URLSearchParams(params).toString();
+      const url = queryParams ? `${endpoint}?${queryParams}` : endpoint;
+      const response = await api.get(url);
+      return { data: response.data, headers: response.headers, status: response.status };
+    } catch (error) {
+      console.error(`GET (meta) ${endpoint} failed:`, error);
       throw error;
     }
   }
