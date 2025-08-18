@@ -103,24 +103,15 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
       setLoading(true);
       dispatch(authStart());
       
-      // Simplified check for existing user for static frontend
-      // Skip this check in the static version and assume new user
-      
       // Prepare talent data
       const talentData = {
         email: formData.email,
         password: formData.password,
         name: formData.name,
-        given_name: formData.given_name || formData.name.split(' ')[0],
-        family_name: formData.family_name || (formData.name.split(' ').length > 1 ? formData.name.split(' ').slice(1).join(' ') : ''),
-        picture: 'https://randomuser.me/api/portraits/men/15.jpg', // Add a default picture
-        role: 'talent',
-        profileCompleted: false // Talents need to complete their profile
+        role: 'talent'
       };
       
-      console.log('Registering talent with data:', talentData);
-      
-      // Register the talent - using our mock API implementation
+      // Register the talent
       const newTalent = await new Promise((resolve, reject) => {
         registerMutation.mutate(
           { userData: talentData, role: 'talent' },
@@ -131,18 +122,12 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
         );
       });
       
-      if (!newTalent || !newTalent.success) {
+      if (!newTalent) {
         throw new Error('Registration failed');
       }
       
-      console.log('Registration successful:', newTalent);
-      
       // Dispatch to Redux
       dispatch(addUser(newTalent));
-      
-      // Set cookies or localStorage for persistence
-      localStorage.setItem('token', newTalent.token);
-      localStorage.setItem('user', JSON.stringify(newTalent));
       
       // Reset form & close modal
       setFormData({
@@ -187,18 +172,12 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
         );
       });
       
-      if (!userData || !userData.success) {
+      if (!userData) {
         throw new Error('Google authentication failed');
       }
       
-      console.log('Google signup successful:', userData);
-      
       // Dispatch to Redux
       dispatch(addUser(userData));
-      
-      // Set localStorage items for persistence
-      localStorage.setItem('token', userData.token);
-      localStorage.setItem('user', JSON.stringify(userData));
       
       // Close modal
       handleClose();

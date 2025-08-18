@@ -464,7 +464,7 @@ const TaskDetail = () => {
       <Dialog
         open={applyDialog}
         onClose={() => {
-          if (!applyMutation.isPending) {
+          if (!applyForTaskMutation.isPending) {
             setApplyDialog(false);
             setApplicationError('');
           }
@@ -485,13 +485,13 @@ const TaskDetail = () => {
             </Typography>
             <IconButton
               onClick={() => {
-                if (!submitting) {
+                if (!applyForTaskMutation.isPending) {
                   setApplyDialog(false);
                   setApplicationError('');
                 }
               }}
               size="small"
-              disabled={applyMutation.isPending}
+              disabled={applyForTaskMutation.isPending}
             >
               <CloseIcon />
             </IconButton>
@@ -524,7 +524,7 @@ const TaskDetail = () => {
                 fullWidth
                 value={applicationData.proposal}
                 onChange={handleApplicationChange}
-                disabled={applyMutation.isPending}
+                disabled={applyForTaskMutation.isPending}
                 sx={{ mb: 3 }}
               />
 
@@ -535,7 +535,7 @@ const TaskDetail = () => {
                 fullWidth
                 value={applicationData.price}
                 onChange={handleApplicationChange}
-                disabled={applyMutation.isPending}
+                disabled={applyForTaskMutation.isPending}
                 sx={{ mb: 3 }}
                 helperText={`Task price: Rs. ${task.price}`}
               />
@@ -547,12 +547,12 @@ const TaskDetail = () => {
           <DialogActions sx={{ p: 2, pt: 0 }}>
             <Button
               onClick={() => {
-                if (!submitting) {
+                if (!applyForTaskMutation.isPending) {
                   setApplyDialog(false);
                   setApplicationError('');
                 }
               }}
-              disabled={applyMutation.isPending}
+              disabled={applyForTaskMutation.isPending}
             >
               Cancel
             </Button>
@@ -560,9 +560,9 @@ const TaskDetail = () => {
               variant="contained"
               color="primary"
               onClick={handleSubmitApplication}
-              disabled={applyMutation.isPending}
+              disabled={applyForTaskMutation.isPending}
             >
-              {applyMutation.isPending ? 'Submitting...' : 'Submit Application'}
+              {applyForTaskMutation.isPending ? 'Submitting...' : 'Submit Application'}
             </Button>
           </DialogActions>
         )}

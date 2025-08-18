@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient, mockUtils } from '../apiClient';
+import { apiClient } from '../apiClient';
 import { normalizeTasks } from '../utils/normalize';
 
 // Query keys for users
@@ -28,14 +28,13 @@ export const useTalentApplications = (talentId) => {
     queryFn: async () => {
       if (!talentId) throw new Error('Talent ID is required');
       
-      // For static frontend, return mock data
-      console.log('Fetching applications for talent:', talentId);
-      const mockApplications = mockUtils.mockTalentApplications(talentId);
+      const response = await apiClient.get(`/applications/talent/${talentId}`);
       
-      return {
-        success: true,
-        data: mockApplications
-      };
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to fetch applications');
+      }
+      
+      return response.data || [];
     },
     enabled: !!talentId,
   });
@@ -47,8 +46,13 @@ export const useUserTasks = (userId, page = 1, limit = 10) => {
     queryKey: USER_KEYS.tasks(userId),
     queryFn: async () => {
       if (!userId) throw new Error('User ID is required');
-      const res = await apiClient.get(`/frontend/user/tasks`, { page, limit });
-      const list = Array.isArray(res) ? res : (res?.data ?? []);
+      const response = await apiClient.get(`/tasks/me`, { page, limit });
+      
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to fetch user tasks');
+      }
+      
+      const list = response.data || [];
       return normalizeTasks(list);
     },
     enabled: !!userId,
@@ -61,12 +65,8 @@ export const useCheckUserExists = () => {
     mutationFn: async ({ email, role }) => {
       if (!email) throw new Error('Email is required');
       
-      // For static frontend, mock the response
-      console.log(`Checking if ${email} exists as ${role}`);
-      return {
-        exists: false,
-        message: 'User does not exist'
-      };
+      const response = await apiClient.post('/auth/check-user', { email, role });
+      return response;
     },
   });
 };
@@ -77,21 +77,26 @@ export const useRegisterUser = () => {
   
   return useMutation({
     mutationFn: async ({ userData, role }) => {
-      // For static frontend, simulate API response
-      console.log('Registering new', role, 'with data:', userData);
+      const response = await apiClient.post('/auth/register', {
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+        role: role
+      });
       
-      const mockToken = mockUtils.generateMockToken();
-      const userId = mockUtils.generateMockUserId(role);
+      if (!response.success) {
+        throw new Error(response.message || 'Registration failed');
+      }
       
-      const registeredUser = {
-        ...userData,
-        id: userId,
-        token: mockToken,
-        success: true
-      };
+      // Store tokens
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+      }
+      if (response.refreshToken) {
+        localStorage.setItem('refreshToken', response.refreshToken);
+      }
       
-      localStorage.setItem('token', mockToken);
-      return registeredUser;
+      return response.user;
     },
     onSuccess: () => {
       // Invalidate current user query
@@ -106,39 +111,24 @@ export const useLoginUser = () => {
   
   return useMutation({
     mutationFn: async ({ credentials, role }) => {
-      // For static frontend, simulate API response
-      console.log('Login attempt for', credentials.email, 'as', role);
+      const response = await apiClient.post('/auth/login', {
+        email: credentials.email,
+        password: credentials.password
+      });
       
-      const mockToken = mockUtils.generateMockToken();
-      const mockRefreshToken = 'mock-refresh-token-' + Math.random().toString(36).substring(2);
-      
-      let userData;
-      if (role === 'talent' && credentials.email === 'ali.hassan@example.com') {
-        userData = {
-          id: 'talent1',
-          email: 'ali.hassan@example.com',
-          name: 'Ali Hassan',
-          given_name: 'Ali',
-          family_name: 'Hassan',
-          picture: 'https://randomuser.me/api/portraits/men/5.jpg',
-          role: 'talent',
-          token: mockToken,
-          refreshToken: mockRefreshToken,
-          accessTokenExpires: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-          refreshTokenExpires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          profileCompleted: true,
-          success: true
-        };
-      } else {
-        return {
-          success: false,
-          message: 'Invalid email or password'
-        };
+      if (!response.success) {
+        throw new Error(response.message || 'Login failed');
       }
       
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('refreshToken', mockRefreshToken);
-      return userData;
+      // Store tokens
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+      }
+      if (response.refreshToken) {
+        localStorage.setItem('refreshToken', response.refreshToken);
+      }
+      
+      return response.user;
     },
     onSuccess: () => {
       // Invalidate current user query
@@ -153,11 +143,13 @@ export const useLogout = () => {
   
   return useMutation({
     mutationFn: async () => {
-      // Call backend logout API if available (non-mocked)
-      if (!process.env.REACT_APP_USE_MOCK_DATA) {
-        const token = localStorage.getItem('token');
-        if (token) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
           await apiClient.post('/auth/logout');
+        } catch (error) {
+          // Continue with logout even if API call fails
+          console.warn('Logout API call failed:', error);
         }
       }
       
@@ -181,41 +173,13 @@ export const useCompleteProfile = () => {
   
   return useMutation({
     mutationFn: async ({ userId, profileData }) => {
-      console.log('Completing profile for user:', userId);
-      console.log('Profile data:', profileData);
+      const response = await apiClient.put(`/users/${userId}/profile`, profileData);
       
-      const mockToken = mockUtils.generateMockToken();
-      
-      // Get existing user from localStorage if available
-      let existingUser = {};
-      try {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          existingUser = JSON.parse(storedUser);
-        }
-      } catch (e) {
-        console.error('Error parsing stored user:', e);
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to complete profile');
       }
       
-      // Create updated user object
-      const updatedUser = {
-        ...existingUser,
-        id: userId,
-        profileCompleted: true,
-        bio: profileData.get('bio') || 'Professional with experience in various tasks',
-        skills: profileData.get('skills') ? JSON.parse(profileData.get('skills')) : ['Plumbing', 'Home Repair'],
-        hourlyRate: profileData.get('hourlyRate') || 2500,
-        education: profileData.get('education') || 'Bachelor\'s Degree',
-        location: profileData.get('location') || 'Lahore, Pakistan',
-        token: mockToken,
-        success: true
-      };
-      
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      
-      console.log('Profile completed successfully:', updatedUser);
-      return updatedUser;
+      return response.data;
     },
     onSuccess: () => {
       // Invalidate current user query
@@ -230,8 +194,24 @@ export const useGoogleAuth = () => {
   
   return useMutation({
     mutationFn: async ({ tokenResponse, role }) => {
-      console.log('Google Auth with token', tokenResponse, 'for role', role);
-      return mockUtils.mockGoogleAuth(tokenResponse, role);
+      const response = await apiClient.post('/auth/google', {
+        token: tokenResponse.credential,
+        role: role
+      });
+      
+      if (!response.success) {
+        throw new Error(response.message || 'Google authentication failed');
+      }
+      
+      // Store tokens
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+      }
+      if (response.refreshToken) {
+        localStorage.setItem('refreshToken', response.refreshToken);
+      }
+      
+      return response.user;
     },
     onSuccess: () => {
       // Invalidate current user query
