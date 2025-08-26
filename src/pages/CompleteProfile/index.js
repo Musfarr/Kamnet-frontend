@@ -241,7 +241,10 @@ const CompleteProfile = () => {
       // Add all profile data
       Object.keys(profileData).forEach(key => {
         if (key === 'skills') {
-          formData.append(key, JSON.stringify(profileData[key]));
+          // Append each skill individually to be parsed as an array by the backend
+          profileData.skills.forEach(skill => {
+            formData.append('skills', skill);
+          });
         } else if (key === 'profileImage' && profileData[key]) {
           formData.append('profileImage', profileData[key]);
         } else if (key !== 'imagePreview') {
@@ -257,22 +260,17 @@ const CompleteProfile = () => {
       
       console.log('Using user ID for profile completion:', userId);
       
-      // Save profile data
-      const updatedUser = await new Promise((resolve, reject) => {
-        completeProfileMutation.mutate(
-          { userId, profileData },
-          {
-            onSuccess: resolve,
-            onError: reject
-          }
-        );
+      // Save profile data using mutateAsync for proper async/await handling
+      const response = await completeProfileMutation.mutateAsync({ 
+        userId, 
+        profileData: formData 
       });
       
-      if (!updatedUser || !updatedUser.success) {
-        throw new Error('Failed to update profile. Please try again.');
+      if (!response || !response.success) {
+        throw new Error(response?.message || 'Failed to update profile. Please try again.');
       }
       
-      console.log('Profile updated successfully:', updatedUser);
+      console.log('Profile updated successfully:', response.data);
       
       // Update user in Redux store
       dispatch(updateProfileStatus(true));

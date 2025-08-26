@@ -48,8 +48,8 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
       return false;
     }
 
-    // Only validate password for talent login (users use OAuth only)
-    if (!userLoginDialog && !formData.password) {
+    // Validate password for both users and talents
+    if (!formData.password) {
       setError('Password is required');
       return false;
     }
@@ -67,17 +67,10 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
       setLoading(true);
       dispatch(authStart());
 
-      // For user role (task poster), redirect to Google OAuth
-      if (userLoginDialog) {
-        setError('Please use Google Sign-In for Task Posters');
-        setLoading(false);
-        return;
-      }
-
       console.log('Attempting login with:', formData.email);
 
-      // For talent role (task doer), validate credentials
-      const roleType = 'talent';
+      // Determine role type
+      const roleType = userLoginDialog ? 'user' : 'talent';
       const loginData = await new Promise((resolve, reject) => {
         loginMutation.mutate(
           { credentials: formData, role: roleType },
@@ -108,11 +101,11 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
       Cookies.set('user', JSON.stringify(loginData));
       Cookies.set('isLoggedIn', 'true');
 
-      // Redirect based on profile completion
-      if (!loginData.profileCompleted) {
+      // Redirect based on role and profile completion
+      if (roleType === 'talent' && !loginData.profileCompleted) {
         navigate('/complete-profile');
       } else {
-        navigate('/talent/dashboard');
+        navigate(roleType === 'talent' ? '/talent/dashboard' : '/user/dashboard');
       }
       
       // Reset form and close modal
@@ -236,80 +229,61 @@ const LoginModal = ({ open, handleClose, setSignupOpen, userLoginDialog }) => {
           </Alert>
         )}
 
-        {userLoginDialog ? (
-          // For user role (task poster) - Only Google login
-          <>
-            <Typography variant="body1" align="center" sx={{ mb: 3 }}>
-              Task Posters can sign in using Google
-            </Typography>
-            
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-              <GoogleLogin
-                onSuccess={handleGoogleLoginSuccess}
-                onError={handleGoogleLoginError}
-                useOneTap
-              />
-            </Box>
-          </>
-        ) : (
-          // For talent role (task doer) - Email/password login with Google option
-          <>
-            <form onSubmit={handleLogin}>
-              <TextField
-                margin="dense"
-                name="email"
-                label="Email Address"
-                type="email"
-                fullWidth
-                variant="outlined"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                sx={{ mb: 2 }}
-              />
+        {/* Both Task Posters and Task Doers can use email/password login with Google option */}
+        <form onSubmit={handleLogin}>
+          <TextField
+            margin="dense"
+            name="email"
+            label="Email Address"
+            type="email"
+            fullWidth
+            variant="outlined"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+            sx={{ mb: 2 }}
+          />
 
-              <TextField
-                margin="dense"
-                name="password"
-                label="Password"
-                type="password"
-                fullWidth
-                variant="outlined"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                sx={{ mb: 2 }}
-              />
+          <TextField
+            margin="dense"
+            name="password"
+            label="Password"
+            type="password"
+            fullWidth
+            variant="outlined"
+            value={formData.password}
+            onChange={handleInputChange}
+            required
+            sx={{ mb: 2 }}
+          />
 
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                disabled={loading}
-                sx={{ 
-                  mt: 1, 
-                  py: 1.5, 
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  fontSize: '1rem'
-                }}
-              >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Log In'}
-              </Button>
-            </form>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={loading}
+            sx={{ 
+              mt: 1, 
+              py: 1.5, 
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontSize: '1rem'
+            }}
+          >
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Log In'}
+          </Button>
+        </form>
 
-            <Divider sx={{ my: 2 }}>OR</Divider>
+        <Divider sx={{ my: 2 }}>OR</Divider>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-              <GoogleLogin
-                onSuccess={handleGoogleLoginSuccess}
-                onError={handleGoogleLoginError}
-                useOneTap
-              />
-            </Box>
-          </>
-        )}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <GoogleLogin
+            onSuccess={handleGoogleLoginSuccess}
+            onError={handleGoogleLoginError}
+            useOneTap
+          />
+        </Box>
 
         <Typography variant="body2" align="center" sx={{ mt: 2 }}>
           Don't have an account?{' '}

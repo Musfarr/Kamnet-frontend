@@ -46,13 +46,7 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
   
   // Validate the form data
   const validateForm = () => {
-    // For Task Posters (users), only OAuth is allowed, no form validation needed
-    if (userLoginDialog) {
-      setError('Please use Google Sign-Up for Task Posters');
-      return false;
-    }
-    
-    // For Task Doers (talents), validate form fields
+    // Validate form fields for both users and talents
     if (!formData.email) {
       setError('Email is required');
       return false;
@@ -91,30 +85,25 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
   const handleSignup = async (e) => {
     e.preventDefault();
     
-    // For Task Posters (users), prompt to use Google Sign-Up instead
-    if (userLoginDialog) {
-      setError('Please use Google Sign-Up for Task Posters');
-      return;
-    }
-    
     if (!validateForm()) return;
     
     try {
       setLoading(true);
       dispatch(authStart());
       
-      // Prepare talent data
-      const talentData = {
+      // Determine role and prepare data
+      const role = userLoginDialog ? 'user' : 'talent';
+      const userData = {
         email: formData.email,
         password: formData.password,
         name: formData.name,
-        role: 'talent'
+        role: role
       };
       
-      // Register the talent
-      const newTalent = await new Promise((resolve, reject) => {
+      // Register the user/talent
+      const newUser = await new Promise((resolve, reject) => {
         registerMutation.mutate(
-          { userData: talentData, role: 'talent' },
+          { userData: userData, role: role },
           {
             onSuccess: resolve,
             onError: reject
@@ -122,12 +111,12 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
         );
       });
       
-      if (!newTalent) {
+      if (!newUser) {
         throw new Error('Registration failed');
       }
       
       // Dispatch to Redux
-      dispatch(addUser(newTalent));
+      dispatch(addUser(newUser));
       
       // Reset form & close modal
       setFormData({
@@ -140,8 +129,12 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
       });
       handleClose();
       
-      // Redirect to profile completion page
-      navigate('/complete-profile');
+      // Redirect based on role and profile completion
+      if (role === 'talent' && !newUser.profileCompleted) {
+        navigate('/complete-profile');
+      } else {
+        navigate(role === 'talent' ? '/talent/dashboard' : '/user/dashboard');
+      }
     } catch (err) {
       console.error('Signup error:', err);
       const errorMessage = err.message || 'Failed to create account. Please try again.';
@@ -247,107 +240,88 @@ function SignupModal({ open, handleClose, setLoginOpen, userLoginDialog }) {
           </Alert>
         )}
         
-        {userLoginDialog ? (
-          // For Task Posters (users) - Only Google signup
-          <>
-            <Typography variant="body1" align="center" sx={{ mb: 3 }}>
-              Task Posters can sign up using Google
-            </Typography>
-            
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-              <GoogleLogin
-                onSuccess={handleGoogleSignupSuccess}
-                onError={handleGoogleSignupError}
-                useOneTap
-              />
-            </Box>
-          </>
-        ) : (
-          // For Task Doers (talents) - Form signup with Google option
-          <>
-            <form onSubmit={handleSignup}>
-              <TextField
-                margin="dense"
-                name="name"
-                label="Full Name"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                sx={{ mb: 2 }}
-              />
-              
-              <TextField
-                margin="dense"
-                name="email"
-                label="Email Address"
-                type="email"
-                fullWidth
-                variant="outlined"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                sx={{ mb: 2 }}
-              />
-              
-              <TextField
-                margin="dense"
-                name="password"
-                label="Password"
-                type="password"
-                fullWidth
-                variant="outlined"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                helperText="Password must be at least 8 characters long"
-                sx={{ mb: 2 }}
-              />
-              
-              <TextField
-                margin="dense"
-                name="confirmPassword"
-                label="Confirm Password"
-                type="password"
-                fullWidth
-                variant="outlined"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-                sx={{ mb: 2 }}
-              />
-              
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                disabled={loading}
-                sx={{ 
-                  mt: 1, 
-                  py: 1.5, 
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  fontSize: '1rem'
-                }}
-              >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign Up'}
-              </Button>
-            </form>
-            
-            <Divider sx={{ my: 2 }}>OR</Divider>
-            
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-              <GoogleLogin
-                onSuccess={handleGoogleSignupSuccess}
-                onError={handleGoogleSignupError}
-                useOneTap
-              />
-            </Box>
-          </>
-        )}
+        {/* Both Task Posters and Task Doers can use email/password signup with Google option */}
+        <form onSubmit={handleSignup}>
+          <TextField
+            margin="dense"
+            name="name"
+            label="Full Name"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+            sx={{ mb: 2 }}
+          />
+          
+          <TextField
+            margin="dense"
+            name="email"
+            label="Email Address"
+            type="email"
+            fullWidth
+            variant="outlined"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+            sx={{ mb: 2 }}
+          />
+          
+          <TextField
+            margin="dense"
+            name="password"
+            label="Password"
+            type="password"
+            fullWidth
+            variant="outlined"
+            value={formData.password}
+            onChange={handleInputChange}
+            required
+            helperText="Password must be at least 8 characters long"
+            sx={{ mb: 2 }}
+          />
+          
+          <TextField
+            margin="dense"
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            fullWidth
+            variant="outlined"
+            value={formData.confirmPassword}
+            onChange={handleInputChange}
+            required
+            sx={{ mb: 2 }}
+          />
+          
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={loading}
+            sx={{ 
+              mt: 1, 
+              py: 1.5, 
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontSize: '1rem'
+            }}
+          >
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign Up'}
+          </Button>
+        </form>
+        
+        <Divider sx={{ my: 2 }}>OR</Divider>
+        
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSignupSuccess}
+            onError={handleGoogleSignupError}
+            useOneTap
+          />
+        </Box>
         
         <Typography variant="body2" align="center" sx={{ mt: 2 }}>
           Already have an account?{' '}

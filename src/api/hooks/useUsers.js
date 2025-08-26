@@ -77,7 +77,10 @@ export const useRegisterUser = () => {
   
   return useMutation({
     mutationFn: async ({ userData, role }) => {
-      const response = await apiClient.post('/auth/register', {
+      // Call the appropriate endpoint based on role
+      const endpoint = role === 'talent' ? '/auth/register/talent' : '/auth/register';
+      
+      const response = await apiClient.post(endpoint, {
         name: userData.name,
         email: userData.email,
         password: userData.password,
@@ -111,7 +114,10 @@ export const useLoginUser = () => {
   
   return useMutation({
     mutationFn: async ({ credentials, role }) => {
-      const response = await apiClient.post('/auth/login', {
+      // Call the appropriate endpoint based on role
+      const endpoint = role === 'talent' ? '/auth/login/talent' : '/auth/login';
+      
+      const response = await apiClient.post(endpoint, {
         email: credentials.email,
         password: credentials.password
       });
@@ -140,7 +146,6 @@ export const useLoginUser = () => {
 // Logout mutation
 export const useLogout = () => {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async () => {
       const token = localStorage.getItem('token');
@@ -179,7 +184,7 @@ export const useCompleteProfile = () => {
         throw new Error(response.message || 'Failed to complete profile');
       }
       
-      return response.data;
+      return response;
     },
     onSuccess: () => {
       // Invalidate current user query
@@ -194,7 +199,10 @@ export const useGoogleAuth = () => {
   
   return useMutation({
     mutationFn: async ({ tokenResponse, role }) => {
-      const response = await apiClient.post('/auth/google', {
+      // Call the appropriate endpoint based on role
+      const endpoint = role === 'talent' ? '/auth/google/talent' : '/auth/google';
+      
+      const response = await apiClient.post(endpoint, {
         token: tokenResponse.credential,
         role: role
       });

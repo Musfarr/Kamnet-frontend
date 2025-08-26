@@ -72,9 +72,7 @@ const Home = () => {
       {/* Hero section */}
       <Box
         sx={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(/hero1.jpg)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white',
           py: { xs: 10, md: 15 },
           mb: 6,
@@ -142,12 +140,19 @@ const Home = () => {
                     boxShadow: 3,
                   }}
                 >
-                  <CardMedia
-                    component="img"
-                    height="180"
-                    image={(task.images && task.images[0]) || '/task-placeholder.jpg'}
-                    alt={task.title}
-                  />
+                  <Box
+                    sx={{
+                      height: 180,
+                      background: 'linear-gradient(45deg, #f3f4f6 0%, #e5e7eb 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#6b7280',
+                      fontSize: '2rem'
+                    }}
+                  >
+                    📋
+                  </Box>
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Chip
@@ -260,12 +265,19 @@ const Home = () => {
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
             <Card sx={{ borderRadius: 2, boxShadow: 3, height: '100%' }}>
-              <CardMedia
-                component="img"
-                height="250"
-                image="/become-worker.jpg"
-                alt="Become a talent"
-              />
+              <Box
+                sx={{
+                  height: 250,
+                  background: 'linear-gradient(45deg, #3b82f6 0%, #1d4ed8 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '4rem'
+                }}
+              >
+                💼
+              </Box>
               <CardContent>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
                   Want to work?
@@ -292,12 +304,19 @@ const Home = () => {
           
           <Grid item xs={12} md={6}>
             <Card sx={{ borderRadius: 2, boxShadow: 3, height: '100%' }}>
-              <CardMedia
-                component="img"
-                height="250"
-                image="/post-task.jpg"
-                alt="Post a task"
-              />
+              <Box
+                sx={{
+                  height: 250,
+                  background: 'linear-gradient(45deg, #10b981 0%, #059669 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '4rem'
+                }}
+              >
+                📝
+              </Box>
               <CardContent>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
                   Need something done?
